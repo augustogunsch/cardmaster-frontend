@@ -4,6 +4,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -21,7 +22,7 @@ type DeckAccordionProps = {
 const DeckAccordion = ({deck, children}: DeckAccordionProps) => {
   const [openForm, setOpenForm] = useState(false);
 
-  const handleOpen = (event: React.MouseEvent<SVGSVGElement>) => {
+  const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     setOpenForm(true);
   };
@@ -39,18 +40,26 @@ const DeckAccordion = ({deck, children}: DeckAccordionProps) => {
             mr: 1
           }}
         >
-          <Typography>{deck.name}</Typography>
           <Box
             sx={{
               display: 'flex',
-              gap: 1
+              alignItems: 'center'
             }}
           >
-            <CreateOutlinedIcon
-              sx={{color: "grey.600"}}
+            <Typography>{deck.name}</Typography>
+          </Box>
+          <Box>
+            <IconButton
+              aria-label="open card"
               onClick={handleOpen}
-            />
-            <PlayArrowOutlinedIcon sx={{color: "grey.600"}} />
+            >
+              <CreateOutlinedIcon sx={{color: "grey.600"}} />
+            </IconButton>
+            <IconButton
+              aria-label="play card"
+            >
+              <PlayArrowOutlinedIcon sx={{color: "grey.600"}} />
+            </IconButton>
           </Box>
         </Box>
       </AccordionSummary>
