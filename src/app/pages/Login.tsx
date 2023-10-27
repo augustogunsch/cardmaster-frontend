@@ -1,8 +1,7 @@
 import { login } from '../slices/userSlice'
-import { useField, useAppDispatch } from '../hooks'
+import { useRequiredField, useValidate, useAppDispatch } from '../hooks'
 import Layout from '../components/Layout'
-import { setError } from '../slices/messageSlice'
-import { AxiosError } from 'axios'
+import { setGenericError } from '../slices/messageSlice'
 
 import userService from '../services/userService';
 
@@ -14,24 +13,9 @@ import Typography from '@mui/material/Typography';
 
 const Login = () => {
   const dispatch = useAppDispatch();
-  const [username, setUsernameError] = useField('text');
-  const [password, setPasswordError] = useField('password');
-
-  const validate = () => {
-    var success = true;
-
-    if (!username.value) {
-      setUsernameError('Username is required');
-      success = false;
-    }
-
-    if (!password.value) {
-      setPasswordError('Password is required');
-      success = false;
-    }
-
-    return success;
-  };
+  const username = useRequiredField('Username', 'text');
+  const password = useRequiredField('Password', 'password');
+  const validate = useValidate([username.validate, password.validate]);
 
   const handleLogin = () => {
     if (validate()) {
@@ -50,9 +34,7 @@ const Login = () => {
         await userService.register(username.value, password.value);
         dispatch(login(username.value, password.value));
       } catch (e) {
-        if (e instanceof AxiosError) {
-          dispatch(setError(e.response ? e.response.data.message : e.message));
-        }
+        dispatch(setGenericError(e));
       }
     }
   }
@@ -95,7 +77,7 @@ const Login = () => {
                   fullWidth
                   label="Username"
                   variant="standard"
-                  {...username}
+                  {...username.inputProps}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -104,7 +86,7 @@ const Login = () => {
                   fullWidth
                   label="Password"
                   variant="standard"
-                  {...password}
+                  {...password.inputProps}
                 />
               </Grid>
               <Grid item xs={6}>

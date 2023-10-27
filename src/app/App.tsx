@@ -7,6 +7,7 @@ import {
 import CssBaseline from '@mui/material/CssBaseline';
 
 import { loadUser } from './slices/userSlice'
+import { loadDecks } from './slices/decksSlice'
 import { useAppDispatch, useAppSelector } from './hooks'
 
 import Message from './components/Message'
@@ -29,10 +30,16 @@ const LoggedIn = ({children}: {children: JSX.Element | JSX.Element[]}) => {
 
 const App = () => {
   const dispatch = useAppDispatch();
+  const user = useAppSelector(store => store.user);
 
   useEffect(() => {
     dispatch(loadUser())
   }, []);
+
+
+  useEffect(() => {
+    dispatch(loadDecks());
+  }, [user]);
 
   return (
     <>

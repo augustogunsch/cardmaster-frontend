@@ -1,5 +1,7 @@
+import { AxiosError } from 'axios'
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import type { AppDispatch } from '../store'
 
 export type MessageState = {
   content: string,
@@ -58,4 +60,16 @@ export const messageSlice = createSlice({
 });
 
 export const { setInfo, setError, setWarning, setSuccess, closeMessage } = messageSlice.actions;
+
+export const setGenericError = (e: unknown) => {
+  return async (dispatch: AppDispatch) => {
+    if (e instanceof AxiosError) {
+      dispatch(setError(e.response ? e.response.data.message : e.message));
+    } else {
+      const error = e as Error;
+      dispatch(setError(error.message));
+    }
+  }
+};
+
 export default messageSlice.reducer;

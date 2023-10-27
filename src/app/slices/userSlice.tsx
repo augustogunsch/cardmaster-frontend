@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import userService from '../services/userService'
-import { setError } from './messageSlice'
-import { AxiosError } from 'axios'
+import { setGenericError } from './messageSlice'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { AppDispatch } from '../store'
 
@@ -41,11 +40,7 @@ export const login = (username: string, password: string) => {
       localStorage.setItem('user', JSON.stringify(state))
       dispatch(setUserState(state));
     } catch (e) {
-      if (e instanceof AxiosError) {
-        dispatch(setError(e.response ? e.response.data.message : e.message));
-      } else {
-        throw e;
-      }
+      dispatch(setGenericError(e));
     }
   }
 }
