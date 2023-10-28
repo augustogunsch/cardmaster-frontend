@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { useTheme } from '@mui/material/styles';
 import List from '@mui/material/List';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -11,6 +10,7 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
+import Pagination from '@mui/material/Pagination';
 
 import { useEffect } from 'react';
 import {
@@ -45,6 +45,7 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
   const [cards, setCards] = useState<CardType[] | null>(null);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [showNewCard, setShowNewCard] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     name.setValue(deck.name);
@@ -120,18 +121,37 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
     }
   }
 
+  const handlePageChange = (_event: unknown, value: number) => {
+    setPage(value);
+  }
+
   const filter = searchFilter.value.toLowerCase();
 
   const filteredCards = cards === null ? null : cards.filter(card => (
     card.front.toLowerCase().includes(filter) || card.back.toLowerCase().includes(filter)
   )).reverse();
 
+  const pageLength = 4;
+  const pagesCount = filteredCards ? Math.ceil(filteredCards.length / pageLength) : 0;
+
+  const paginatedCards = filteredCards === null ?
+    null :
+    filteredCards.slice((page - 1) * pageLength, Math.min(page * pageLength, filteredCards.length));
+
+  useEffect(() => {
+    if (page >= pagesCount) {
+      setPage(pagesCount);
+    } else if (page === 0) {
+      setPage(1);
+    }
+  }, [pagesCount, filter]);
+
   const cardsList = () => {
-    if (filteredCards === null) {
+    if (paginatedCards === null) {
       return <Stack alignItems="center"><CircularProgress /></Stack>;
     }
 
-    if (!filteredCards.length && !showNewCard) {
+    if (!paginatedCards.length && !showNewCard) {
       return <Typography>No cards found.</Typography>;
     }
 
@@ -146,7 +166,7 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
             toggleSelected={() => {}}
           />
         )}
-        {filteredCards.map(card => (
+        {paginatedCards.map(card => (
           <Card
             key={card.id}
             card={card}
@@ -156,6 +176,17 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
             toggleSelected={toggleSelected}
           />
         ))}
+        <Pagination
+          count={pagesCount}
+          page={page}
+          onChange={handlePageChange}
+          sx={{
+            marginTop: 2,
+            '& .MuiPagination-ul': {
+              justifyContent: 'center'
+            }
+          }}
+        />
       </>
     );
   }
@@ -189,7 +220,7 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
         </Grid>
         <Grid item xs={12} >
           <Typography variant="h6">Cards</Typography>
-          <Grid container gap={1} alignItems="stretch">
+          <Grid container gap={1} columns={{ xs: 6, sm: 12 }} alignItems="stretch">
             <Grid item xs >
               <Button
                 color="success"

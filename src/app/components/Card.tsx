@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useTheme } from '@mui/material/styles';
 import ListItem from '@mui/material/ListItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -23,6 +24,7 @@ type CardProps = {
 }
 
 const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProps) => {
+  const theme = useTheme();
   const front = useRequiredField('Front', 'text');
   const back = useRequiredField('Back', 'text');
   const validate = useValidate([front.validate, back.validate]);
@@ -91,8 +93,12 @@ const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProp
           direction="row"
           spacing={1}
           sx={{
-            width: '100%'
+            width: '100%',
+            bgcolor: 'grey.50',
+            padding: theme.spacing(2, 2, 2, 0),
+            borderRadius: 2
           }}
+          alignItems="center"
         >
           {card && (
             <Checkbox
@@ -108,21 +114,31 @@ const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProp
               <ClearIcon />
             </IconButton>
           )}
-          <TextField
-            required
-            label="Front"
-            variant="standard"
-            fullWidth
-            autoFocus={Boolean(!card)}
-            {...front.inputProps}
-          />
-          <TextField
-            required
-            label="Back"
-            variant="standard"
-            fullWidth
-            {...back.inputProps}
-          />
+          <Stack
+            direction="row"
+            spacing={1}
+            useFlexGap
+            sx={{
+              width: '100%',
+              flexWrap: { xs: 'wrap', sm: 'nowrap' }
+            }}
+          >
+            <TextField
+              required
+              label="Front"
+              variant="standard"
+              fullWidth
+              autoFocus={Boolean(!card)}
+              {...front.inputProps}
+            />
+            <TextField
+              required
+              label="Back"
+              variant="standard"
+              fullWidth
+              {...back.inputProps}
+            />
+          </Stack>
         </Stack>
         {modified && (
           <Stack

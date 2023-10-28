@@ -42,7 +42,7 @@ const DynamicForm = ({open, handleClose, handleSubmit, title, children}: Fullscr
         maxWidth="md"
         fullWidth
       >
-        <AppBar position="relative">
+        <AppBar position="sticky">
           <Toolbar>
             <IconButton
               edge="start"

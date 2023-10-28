@@ -30,14 +30,13 @@ const DeckAccordion = ({deck, children}: DeckAccordionProps) => {
   return (
     <Accordion>
       <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
+        expandIcon={<IconButton><ExpandMoreIcon /></IconButton>}
       >
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
             width: '100%',
-            mr: 1
           }}
         >
           <Box
