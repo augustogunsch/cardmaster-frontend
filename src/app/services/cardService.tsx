@@ -9,6 +9,11 @@ export type Card = {
   back: string
 }
 
+export type NewCard = {
+  front: string,
+  back: string
+}
+
 type CardsResponse = {
   data: Card[]
 }
@@ -25,6 +30,15 @@ const getCards = async (deckId: number, token: string): Promise<CardsResponse> =
   return response.data;
 }
 
+const createCard = async (card: NewCard, deckId: number, token: string): Promise<CardResponse> => {
+  const response = await axios.post(
+    `${decksUrl}/${deckId}/cards`,
+    card,
+    {headers: {'Authorization': token}}
+  );
+  return response.data;
+};
+
 const updateCard = async (card: Card, token: string): Promise<CardResponse> => {
   const response = await axios.put(
     `${cardsUrl}/${card.id}`,
@@ -34,7 +48,17 @@ const updateCard = async (card: Card, token: string): Promise<CardResponse> => {
   return response.data;
 };
 
+const deleteCard = async (cardId: number, token: string): Promise<CardResponse> => {
+  const response = await axios.delete(
+    `${cardsUrl}/${cardId}`,
+    {headers: {'Authorization': token}}
+  );
+  return response.data;
+};
+
 export default {
   getCards,
-  updateCard
+  createCard,
+  updateCard,
+  deleteCard
 }

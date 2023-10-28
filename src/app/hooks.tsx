@@ -10,7 +10,7 @@ type InputProps = {
   helperText: string
 }
 
-type UseField = {
+export type UseField = {
   inputProps: InputProps,
   value: string,
   clear: () => void,
