@@ -4,6 +4,8 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -12,19 +14,29 @@ import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 
 import DeckEditForm from '../components/DeckEditForm'
+import ConfirmDialog from '../components/ConfirmDialog'
+import { deleteDeck } from '../slices/decksSlice';
+import { useAppDispatch } from '../hooks';
 import type { Deck } from '../services/deckService'
 
 type DeckAccordionProps = {
-  deck: Deck,
-  children: JSX.Element | JSX.Element[]
+  deck: Deck
 }
 
-const DeckAccordion = ({deck, children}: DeckAccordionProps) => {
+const Deck = ({deck}: DeckAccordionProps) => {
   const [openForm, setOpenForm] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const dispatch = useAppDispatch();
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     setOpenForm(true);
+  };
+
+  const handleDelete = () => {
+    dispatch(deleteDeck(deck.id));
+    setOpenDeleteDialog(false);
   };
 
   return (
@@ -52,26 +64,60 @@ const DeckAccordion = ({deck, children}: DeckAccordionProps) => {
               aria-label="open card"
               onClick={handleOpen}
             >
-              <CreateOutlinedIcon sx={{color: "grey.600"}} />
+              <CreateOutlinedIcon />
             </IconButton>
             <IconButton
               aria-label="play card"
             >
-              <PlayArrowOutlinedIcon sx={{color: "grey.600"}} />
+              <PlayArrowOutlinedIcon />
             </IconButton>
           </Box>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
-        {children}
+        <Grid container>
+          <Grid item xs={6}>
+            <Typography>Author: {deck.author}</Typography>
+            <Typography>Shared: {deck.shared ? 'Yes' : 'No'}</Typography>
+            <Typography>Number of cards: {deck.cards_count}</Typography>
+          </Grid>
+          <Grid
+            item
+            xs={6}
+          >
+            <Box
+              display="flex"
+              justifyContent="end"
+              alignItems="end"
+              height="100%"
+            >
+              <Button
+                variant="text"
+                color="error"
+                onClick={() => setOpenDeleteDialog(true)}
+              >
+                Delete deck
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
       </AccordionDetails>
       <DeckEditForm
         open={openForm}
         handleClose={() => setOpenForm(false)}
         deck={deck}
       />
+      <ConfirmDialog
+        open={openDeleteDialog}
+        handleClose={() => setOpenDeleteDialog(false)}
+        handleConfirm={handleDelete}
+        title="Delete deck"
+        deleteButton
+      >
+        <Typography>Are you sure you want to delete this deck?</Typography>
+      </ConfirmDialog>
     </Accordion>
   );
 };
 
-export default DeckAccordion;
+export default Deck;

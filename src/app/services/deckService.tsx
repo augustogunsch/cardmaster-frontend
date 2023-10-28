@@ -46,8 +46,17 @@ const updateDeck = async (deck: Deck, token: string): Promise<DeckResponse> => {
   return response.data;
 }
 
+const deleteDeck = async (deckId: number, token: string): Promise<DeckResponse> => {
+  const response = await axios.delete(
+    `${baseUrl}/${deckId}`,
+    {headers: {'Authorization': token}}
+  );
+  return response.data;
+}
+
 export default {
   getUserDecks,
   postDeck,
-  updateDeck
+  updateDeck,
+  deleteDeck
 }

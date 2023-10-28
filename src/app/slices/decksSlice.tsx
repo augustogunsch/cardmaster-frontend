@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { setSuccess, setGenericError } from './messageSlice'
 import decksService from '../services/deckService'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { Deck } from '../services/deckService'
@@ -18,6 +19,9 @@ export const decksSlice = createSlice({
     },
     replaceDeck: (state, action: PayloadAction<Deck>) => {
       return state.map(deck => deck.id === action.payload.id ? action.payload : deck);
+    },
+    removeDeck: (state, action: PayloadAction<Deck>) => {
+      return state.filter(deck => deck.id !== action.payload.id);
     }
   }
 });
@@ -51,5 +55,18 @@ export const updateDeck = (deck: Deck) => {
     dispatch(replaceDeck(response.data));
   };
 };
+
+export const deleteDeck = (deckId: number) => {
+  return async (dispatch: AppDispatch, getState: AppGetState) => {
+    const state = getState();
+    try {
+      const response = await decksService.deleteDeck(deckId, state.user.token);
+      dispatch(decksSlice.actions.removeDeck(response.data));
+      dispatch(setSuccess('Deck deleted successfully'));
+    } catch (e) {
+      dispatch(setGenericError(e));
+    }
+  };
+}
 
 export default decksSlice.reducer;

@@ -19,7 +19,7 @@ import {
   useAppSelector,
   useField
 } from '../hooks';
-import { updateDeck } from '../slices/decksSlice';
+import { updateDeck, replaceDeck } from '../slices/decksSlice';
 import cardService from '../services/cardService'
 import type { Deck } from '../services/deckService'
 import type { Card as CardType } from '../services/cardService'
@@ -46,6 +46,17 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [showNewCard, setShowNewCard] = useState(false);
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (cards !== null && deck.cards_count != cards.length) {
+      const updatedDeck = {
+        ...deck,
+        cards_count: cards.length
+      };
+
+      dispatch(replaceDeck(updatedDeck));
+    }
+  }, [cards]);
 
   useEffect(() => {
     name.setValue(deck.name);

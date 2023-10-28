@@ -5,7 +5,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Layout from '../components/Layout'
-import DeckAccordion from '../components/DeckAccordion'
+import Deck from '../components/Deck'
 import DeckCreateForm from '../components/DeckCreateForm'
 
 const Decks = () => {
@@ -30,9 +30,7 @@ const Decks = () => {
           Create Deck
         </Button>
         {decks.map(deck => (
-          <DeckAccordion deck={deck} key={deck.id}>
-            <Typography>Lorem ipsum</Typography>
-          </DeckAccordion>
+          <Deck deck={deck} key={deck.id} />
         ))}
       </Box>
       <DeckCreateForm open={open} handleClose={() => setOpen(false)}/>
