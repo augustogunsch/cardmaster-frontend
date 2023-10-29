@@ -91,7 +91,6 @@ const Deck = ({deck}: DeckAccordionProps) => {
       <AccordionDetails>
         <Grid container>
           <Grid item xs={6}>
-            <Typography>Author: {deck.author}</Typography>
             <Typography>Shared: {deck.shared ? 'Yes' : 'No'}</Typography>
             <Typography>Number of cards: {deck.cards_count}</Typography>
           </Grid>

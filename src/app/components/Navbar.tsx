@@ -19,6 +19,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
 
 const pages = [
   {
@@ -32,14 +33,6 @@ const pages = [
 ];
 
 const userMenuOptions = [
-  {
-    name: 'Profile',
-    url: '/profile'
-  },
-  {
-    name: 'Account',
-    url: '/account'
-  },
   {
     name: 'Logout',
     url: '/logout'
@@ -83,6 +76,9 @@ const Navbar = () => {
   };
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    if (!user.id) {
+      navigate('/login');
+    }
     setAnchorElUser(event.currentTarget);
   };
 
@@ -168,29 +164,35 @@ const Navbar = () => {
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
               {user.id && <Avatar {...stringAvatar(user.username)} /> || <Avatar />}
             </IconButton>
-            <Menu
-              sx={{
-                mt: '45px'
-              }}
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right'
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right'
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {userMenuOptions.map(option => (
-                <MenuItem key={option.url} onClick={() => navigate(option.url)}>
-                  <Typography textAlign="center">{option.name}</Typography>
+            {Boolean(user.id) && (
+              <Menu
+                sx={{
+                  mt: '45px'
+                }}
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right'
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right'
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                <MenuItem>
+                  <Typography textAlign="center">{user.username}</Typography>
                 </MenuItem>
-              ))}
-            </Menu>
+                <Divider />
+                {userMenuOptions.map(option => (
+                  <MenuItem key={option.url} onClick={() => navigate(option.url)}>
+                    <Typography textAlign="center">{option.name}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            )}
           </Box>
         </Toolbar>
       </Container>

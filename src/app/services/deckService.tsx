@@ -7,7 +7,6 @@ export type Deck = {
   id: number,
   name: string,
   user: string,
-  author: string,
   cards_count: number,
   shared: boolean
 }
