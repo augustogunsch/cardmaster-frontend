@@ -1,16 +1,23 @@
-import { useState } from 'react';
-import { useAppSelector } from '../hooks'
+import { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../hooks'
+import { loadDecks } from '../slices/decksSlice';
 
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Layout from '../components/Layout'
-import Deck from '../components/Deck'
-import DeckCreateForm from '../components/DeckCreateForm'
+import Deck from '../components/Decks/Deck'
+import DeckCreateForm from '../components/Decks/DeckCreateForm'
+import Paginated from '../components/Paginated'
 
 const Decks = () => {
   const [open, setOpen] = useState(false);
   const decks = useAppSelector(store => store.decks);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(loadDecks());
+  }, []);
 
   return (
     <Layout>
@@ -22,16 +29,21 @@ const Decks = () => {
           My decks
         </Typography>
         <Button
-          sx={{ mb: 4 }}
           variant="contained"
           color="secondary"
           onClick={() => setOpen(true)}
         >
           Create Deck
         </Button>
-        {decks.map(deck => (
-          <Deck deck={deck} key={deck.id} />
-        ))}
+        <Paginated
+          elementNamePlural="decks"
+          pageLength={10}
+          getElements={decks}
+          filter={(deck, filter) => deck.name.toLowerCase().includes(filter)}
+          elementMapper={deck => (
+            <Deck deck={deck} key={deck.id} />
+          )}
+        />
       </Box>
       <DeckCreateForm open={open} handleClose={() => setOpen(false)}/>
     </Layout>

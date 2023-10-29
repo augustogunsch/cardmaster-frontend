@@ -6,28 +6,24 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
-import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
-import Pagination from '@mui/material/Pagination';
 
 import { useEffect } from 'react';
 import {
   useRequiredField,
   useAppDispatch,
-  useAppSelector,
-  useField
-} from '../hooks';
-import { updateDeck, replaceDeck } from '../slices/decksSlice';
-import cardService from '../services/cardService'
-import type { Deck } from '../services/deckService'
-import type { Card as CardType } from '../services/cardService'
-import { setSuccess, setGenericError } from '../slices/messageSlice';
+  useAppSelector
+} from '../../hooks';
+import { updateDeck, replaceDeck } from '../../slices/decksSlice';
+import cardService from '../../services/cardService'
+import type { Deck } from '../../services/deckService'
+import type { Card as CardType } from '../../services/cardService'
+import { setSuccess, setGenericError } from '../../slices/messageSlice';
 
-import DynamicForm from './DynamicForm';
+import DynamicForm from '../DynamicForm';
 import Card from './Card';
-import Search from './Search';
+import Paginated from '../Paginated';
 
 type DeckEditFormProps = {
   open: boolean,
@@ -38,14 +34,12 @@ type DeckEditFormProps = {
 const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
   const dispatch = useAppDispatch();
   const name = useRequiredField('Name', 'text');
-  const searchFilter = useField('text');
   const token = useAppSelector(store => store.user.token);
   const [deletingCards, setDeletingCards] = useState(false);
   const [shared, setShared] = useState(false);
   const [cards, setCards] = useState<CardType[] | null>(null);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [showNewCard, setShowNewCard] = useState(false);
-  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (cards !== null && deck.cards_count != cards.length) {
@@ -132,75 +126,10 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
     }
   }
 
-  const handlePageChange = (_event: unknown, value: number) => {
-    setPage(value);
-  }
-
-  const filter = searchFilter.value.toLowerCase();
-
-  const filteredCards = cards === null ? null : cards.filter(card => (
-    card.front.toLowerCase().includes(filter) || card.back.toLowerCase().includes(filter)
-  )).reverse();
-
-  const pageLength = 4;
-  const pagesCount = filteredCards ? Math.ceil(filteredCards.length / pageLength) : 0;
-
-  const paginatedCards = filteredCards === null ?
-    null :
-    filteredCards.slice((page - 1) * pageLength, Math.min(page * pageLength, filteredCards.length));
-
-  useEffect(() => {
-    if (page >= pagesCount) {
-      setPage(pagesCount);
-    } else if (page === 0) {
-      setPage(1);
-    }
-  }, [pagesCount, filter]);
-
-  const cardsList = () => {
-    if (paginatedCards === null) {
-      return <Stack alignItems="center"><CircularProgress /></Stack>;
-    }
-
-    if (!paginatedCards.length && !showNewCard) {
-      return <Typography>No cards found.</Typography>;
-    }
-
-    return (
-      <>
-        {showNewCard && (
-          <Card
-            card={null}
-            deckId={deck.id}
-            submitCallback={appendCard}
-            selected={false}
-            toggleSelected={() => {}}
-          />
-        )}
-        {paginatedCards.map(card => (
-          <Card
-            key={card.id}
-            card={card}
-            deckId={deck.id}
-            submitCallback={updateCard}
-            selected={selectedCards.includes(card.id)}
-            toggleSelected={toggleSelected}
-          />
-        ))}
-        <Pagination
-          count={pagesCount}
-          page={page}
-          onChange={handlePageChange}
-          sx={{
-            marginTop: 2,
-            '& .MuiPagination-ul': {
-              justifyContent: 'center'
-            }
-          }}
-        />
-      </>
-    );
-  }
+  const filterCard = (card: CardType, filter: string) => {
+    return card.front.toLowerCase().includes(filter) ||
+           card.back.toLowerCase().includes(filter);
+  };
 
   return (
     <DynamicForm
@@ -258,12 +187,33 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
                 {!deletingCards && "Remove"}
               </LoadingButton>
             </Grid>
-            <Grid item xs={6} >
-              <Search searchField={searchFilter}/>
-            </Grid>
+            <Grid item xs={6} />
           </Grid>
           <List>
-            {cardsList()}
+            <Paginated
+              pageLength={4}
+              elementNamePlural="cards"
+              elementMapper={card => (
+                <Card
+                  key={card.id}
+                  card={card}
+                  deckId={deck.id}
+                  submitCallback={updateCard}
+                  selected={selectedCards.includes(card.id)}
+                  toggleSelected={toggleSelected}
+                />
+              )}
+              getElements={cards}
+              filter={filterCard}
+            >
+              {showNewCard && <Card
+                card={null}
+                deckId={deck.id}
+                submitCallback={appendCard}
+                selected={false}
+                toggleSelected={() => {}}
+              />}
+            </Paginated>
           </List>
         </Grid>
       </Grid>

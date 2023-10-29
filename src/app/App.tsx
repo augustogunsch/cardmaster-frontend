@@ -26,14 +26,14 @@ const LoggedIn = ({children}: {children: JSX.Element | JSX.Element[]}) => {
   }
 
   return <Login />;
-}
+};
 
 const App = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(store => store.user);
 
   useEffect(() => {
-    dispatch(loadUser())
+    dispatch(loadUser());
   }, []);
 
 
@@ -56,4 +56,4 @@ const App = () => {
   );
 };
 
-export default App
+export default App;

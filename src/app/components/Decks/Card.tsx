@@ -11,9 +11,9 @@ import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
 import ClearIcon from '@mui/icons-material/Clear';
 
-import { useRequiredField, useAppSelector, useAppDispatch, useValidate } from '../hooks';
-import cardService, { Card as CardType } from '../services/cardService';
-import { setGenericError } from '../slices/messageSlice';
+import { useRequiredField, useAppSelector, useAppDispatch, useValidate } from '../../hooks';
+import cardService, { Card as CardType } from '../../services/cardService';
+import { setGenericError } from '../../slices/messageSlice';
 
 type CardProps = {
   card: CardType | null,

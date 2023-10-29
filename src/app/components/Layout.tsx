@@ -21,7 +21,12 @@ const Layout = ({children}: {children: JSX.Element | JSX.Element[] | undefined})
             minHeight: '100vh'
           }}
         >
-          <Container maxWidth="xl">
+          <Container
+            maxWidth="xl"
+            sx={{
+              marginBottom: 5
+            }}
+          >
             {children && children}
           </Container>
           <Footer />

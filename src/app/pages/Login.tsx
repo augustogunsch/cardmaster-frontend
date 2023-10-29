@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { login } from '../slices/userSlice'
-import { useRequiredField, useValidate, useAppDispatch } from '../hooks'
+import { useRequiredField, useValidate, useAppDispatch, useAppSelector } from '../hooks'
 import Layout from '../components/Layout'
 import { setGenericError } from '../slices/messageSlice'
 
@@ -12,10 +14,18 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 const Login = () => {
+  const user = useAppSelector(store => store.user);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const username = useRequiredField('Username', 'text');
   const password = useRequiredField('Password', 'password');
   const validate = useValidate([username.validate, password.validate]);
+
+  useEffect(() => {
+    if (user.id) {
+      navigate('/');
+    }
+  }, [user]);
 
   const handleLogin = () => {
     if (validate()) {
@@ -68,7 +78,7 @@ const Login = () => {
                 <Typography
                   variant="subtitle1"
                 >
-                  Welcome back. Please login to your account.
+                  Welcome. Please login to your account or sign up.
                 </Typography>
               </Grid>
               <Grid item xs={12}>

@@ -11,7 +11,7 @@ const SearchWrapper = styled('div')(() => ({
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
+  padding: theme.spacing(0, 1),
   height: '100%',
   position: 'absolute',
   pointerEvents: 'none',
@@ -30,18 +30,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   width: '100%',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     paddingRight: `calc(1em + ${theme.spacing(4)})`,
     width: '100%',
   },
 }));
 
-const Search = ({searchField}: {searchField: UseField}) => {
+type SearchProps = {
+  searchField: UseField,
+  style?: React.CSSProperties
+};
+
+const Search = ({searchField, style}: SearchProps) => {
   const {helperText: _, ...props} = searchField.inputProps;
 
   return (
-    <SearchWrapper>
+    <SearchWrapper style={style}>
       <SearchIconWrapper>
         <SearchIcon />
       </SearchIconWrapper>

@@ -1,9 +1,9 @@
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
-import { useRequiredField, useAppDispatch } from '../hooks';
-import { createDeck } from '../slices/decksSlice';
+import { useRequiredField, useAppDispatch } from '../../hooks';
+import { createDeck } from '../../slices/decksSlice';
 
-import DynamicForm from './DynamicForm';
+import DynamicForm from '../DynamicForm';
 
 type DeckCreateFormProps = {
   open: boolean,

@@ -12,12 +12,15 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DoneIcon from '@mui/icons-material/Done';
 
-import DeckEditForm from '../components/DeckEditForm'
-import ConfirmDialog from '../components/ConfirmDialog'
-import { deleteDeck } from '../slices/decksSlice';
-import { useAppDispatch } from '../hooks';
-import type { Deck } from '../services/deckService'
+import IconButtonAlternate from '../IconButtonAlternate';
+import DeckEditForm from './DeckEditForm'
+import ConfirmDialog from '../ConfirmDialog'
+import { deleteDeck, duplicateDeck } from '../../slices/decksSlice';
+import { useAppDispatch } from '../../hooks';
+import type { Deck } from '../../services/deckService'
 
 type DeckAccordionProps = {
   deck: Deck
@@ -32,6 +35,11 @@ const Deck = ({deck}: DeckAccordionProps) => {
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     setOpenForm(true);
+  };
+
+  const handleDuplicate = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    dispatch(duplicateDeck(deck.id));
   };
 
   const handleDelete = () => {
@@ -60,14 +68,20 @@ const Deck = ({deck}: DeckAccordionProps) => {
             <Typography>{deck.name}</Typography>
           </Box>
           <Box>
+            <IconButtonAlternate
+              aria-label="Duplicate deck"
+              onClick={handleDuplicate}
+              iconA={<ContentCopyIcon />}
+              iconB={<DoneIcon/>}
+            />
             <IconButton
-              aria-label="open card"
+              aria-label="Edit deck"
               onClick={handleOpen}
             >
               <CreateOutlinedIcon />
             </IconButton>
             <IconButton
-              aria-label="play card"
+              aria-label="Train deck"
             >
               <PlayArrowOutlinedIcon />
             </IconButton>
