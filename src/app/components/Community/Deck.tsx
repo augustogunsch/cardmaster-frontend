@@ -67,7 +67,7 @@ const Deck = ({deck}: DeckAccordionProps) => {
             <IconButtonAlternate
               aria-label="Get deck"
               onClick={handleGetDeck}
-              disabled={deck.author === user.username}
+              disabled={deck.user === user.username}
               iconA={<DownloadIcon />}
               iconB={<DoneIcon/>}
             />

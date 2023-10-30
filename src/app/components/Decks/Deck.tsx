@@ -5,9 +5,11 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
@@ -16,11 +18,12 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DoneIcon from '@mui/icons-material/Done';
 
 import IconButtonAlternate from '../IconButtonAlternate';
-import DeckEditForm from './DeckEditForm'
-import ConfirmDialog from '../ConfirmDialog'
+import DeckEditForm from './DeckEditForm';
+import ConfirmDialog from '../ConfirmDialog';
 import { deleteDeck, duplicateDeck } from '../../slices/decksSlice';
-import { useAppDispatch } from '../../hooks';
-import type { Deck } from '../../services/deckService'
+import { useAppSelector, useAppDispatch, useLoad } from '../../hooks';
+import cardService from '../../services/cardService';
+import type { Deck } from '../../services/deckService';
 
 type DeckAccordionProps = {
   deck: Deck
@@ -29,8 +32,18 @@ type DeckAccordionProps = {
 const Deck = ({deck}: DeckAccordionProps) => {
   const [openForm, setOpenForm] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const token = useAppSelector(store => store.user.token);
 
   const dispatch = useAppDispatch();
+
+  const [newCardsCount] = useLoad(async () =>
+    await cardService.countCards(deck.id, token, { new: true }),
+  [expanded], expanded);
+
+  const [dueCardsCount] = useLoad(async () =>
+    await cardService.countCards(deck.id, token, { due: new Date().toISOString() }),
+  [expanded], expanded);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -47,8 +60,15 @@ const Deck = ({deck}: DeckAccordionProps) => {
     setOpenDeleteDialog(false);
   };
 
+  const handleExpand = (_event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpanded(isExpanded);
+  };
+
   return (
-    <Accordion>
+    <Accordion
+      expanded={expanded}
+      onChange={handleExpand}
+    >
       <AccordionSummary
         expandIcon={<IconButton><ExpandMoreIcon /></IconButton>}
       >
@@ -89,31 +109,45 @@ const Deck = ({deck}: DeckAccordionProps) => {
         </Box>
       </AccordionSummary>
       <AccordionDetails>
-        <Grid container>
-          <Grid item xs={6}>
-            <Typography>Shared: {deck.shared ? 'Yes' : 'No'}</Typography>
-            <Typography>Number of cards: {deck.cards_count}</Typography>
-          </Grid>
-          <Grid
-            item
-            xs={6}
+        {(newCardsCount === null || dueCardsCount === null) && expanded && (
+          <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            height="96px"
           >
-            <Box
-              display="flex"
-              justifyContent="end"
-              alignItems="end"
-              height="100%"
+            <CircularProgress/>
+          </Stack>
+        )}
+        {newCardsCount !== null && dueCardsCount !== null && (
+          <Grid container>
+            <Grid item xs={6}>
+              <Typography>Shared: {deck.shared ? 'Yes' : 'No'}</Typography>
+              <Typography>Number of cards: {deck.cards_count}</Typography>
+              <Typography>New cards: {newCardsCount}</Typography>
+              <Typography>Due cards: {dueCardsCount}</Typography>
+            </Grid>
+            <Grid
+              item
+              xs={6}
             >
-              <Button
-                variant="text"
-                color="error"
-                onClick={() => setOpenDeleteDialog(true)}
+              <Box
+                display="flex"
+                justifyContent="end"
+                alignItems="end"
+                height="100%"
               >
-                Delete deck
-              </Button>
-            </Box>
+                <Button
+                  variant="text"
+                  color="error"
+                  onClick={() => setOpenDeleteDialog(true)}
+                >
+                  Delete deck
+                </Button>
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </AccordionDetails>
       <DeckEditForm
         open={openForm}

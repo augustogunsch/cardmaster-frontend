@@ -13,7 +13,8 @@ import { useEffect } from 'react';
 import {
   useRequiredField,
   useAppDispatch,
-  useAppSelector
+  useAppSelector,
+  useLoad
 } from '../../hooks';
 import { updateDeck, replaceDeck } from '../../slices/decksSlice';
 import cardService from '../../services/cardService'
@@ -37,9 +38,12 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
   const token = useAppSelector(store => store.user.token);
   const [deletingCards, setDeletingCards] = useState(false);
   const [shared, setShared] = useState(false);
-  const [cards, setCards] = useState<CardType[] | null>(null);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [showNewCard, setShowNewCard] = useState(false);
+
+  const [cards, setCards] = useLoad(async () =>
+    await cardService.getCards(deck.id, token),
+  [open], open);
 
   useEffect(() => {
     if (cards !== null && deck.cards_count != cards.length) {
@@ -53,17 +57,9 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
   }, [cards]);
 
   useEffect(() => {
-    name.setValue(deck.name);
-    setShared(deck.shared);
-
     if (open) {
-      cardService
-        .getCards(deck.id, token)
-        .then(response => {
-          setCards(response.data);
-        });
-    } else {
-      setCards(null);
+      name.setValue(deck.name);
+      setShared(deck.shared);
       setShowNewCard(false);
       setSelectedCards([]);
     }
