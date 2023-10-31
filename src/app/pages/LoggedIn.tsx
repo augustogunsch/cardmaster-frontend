@@ -9,6 +9,10 @@ export interface IProps {
 const LoggedIn = ({ children }: IProps): React.JSX.Element => {
   const user = useAppSelector(store => store.user);
 
+  if (!user.loaded) {
+    return <></>;
+  }
+
   if (user.id !== 0) {
     return <>{children}</>;
   }

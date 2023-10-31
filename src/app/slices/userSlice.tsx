@@ -9,13 +9,15 @@ export interface UserState {
   username: string
   admin: boolean
   token: string
+  loaded: boolean
 }
 
 const initialState: UserState = {
   id: 0,
   username: '',
   admin: false,
-  token: ''
+  token: '',
+  loaded: false
 };
 
 export const userSlice = createSlice({
@@ -35,7 +37,7 @@ export const login = (username: string, password: string) => {
     try {
       const loginInfo = await userService.login(username, password);
 
-      const state = { ...loginInfo.user, token: loginInfo.token };
+      const state = { ...loginInfo.user, token: loginInfo.token, loaded: true };
 
       localStorage.setItem('user', JSON.stringify(state));
       dispatch(setUserState(state));
@@ -56,7 +58,7 @@ export const loadUser = () => {
   return async (dispatch: AppDispatch) => {
     const state = localStorage.getItem('user');
     if (state !== null) {
-      dispatch(setUserState(JSON.parse(state)));
+      dispatch(setUserState({ ...JSON.parse(state), loaded: true }));
     }
   };
 };

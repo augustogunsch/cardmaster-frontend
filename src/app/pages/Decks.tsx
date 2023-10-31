@@ -12,7 +12,7 @@ import Paginated from '../components/Layout/Paginated';
 
 const Decks = (): React.JSX.Element => {
   const [open, setOpen] = useState(false);
-  const decks = useAppSelector(store => store.decks);
+  const decks = useAppSelector(store => store.decks.owned);
   const dispatch = useAppDispatch();
 
   useEffect(() => {

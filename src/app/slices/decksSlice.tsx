@@ -6,23 +6,38 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import type { IDeck } from '../services/deckService';
 import type { AppDispatch, AppGetState } from '../store';
 
-const initialState: IDeck[] = [];
+export interface IDecksState {
+  owned: IDeck[] | null | undefined
+};
+
+const initialState: IDecksState = {
+  owned: undefined
+};
 
 export const decksSlice = createSlice({
   name: 'decks',
   initialState,
   reducers: {
-    setDecks: (_state, action: PayloadAction<IDeck[]>) => {
+    setDecks: (_state, action: PayloadAction<IDecksState>) => {
       return action.payload;
     },
     appendDeck: (state, action: PayloadAction<IDeck>) => {
-      state.push(action.payload);
+      if (state.owned === null || state.owned === undefined) {
+        return { owned: [action.payload] };
+      }
+      state.owned.push(action.payload);
     },
     replaceDeck: (state, action: PayloadAction<IDeck>) => {
-      return state.map(deck => deck.id === action.payload.id ? action.payload : deck);
+      if (state.owned === null || state.owned === undefined) {
+        return state;
+      }
+      return { owned: state.owned.map(deck => deck.id === action.payload.id ? action.payload : deck) };
     },
     removeDeck: (state, action: PayloadAction<IDeck>) => {
-      return state.filter(deck => deck.id !== action.payload.id);
+      if (state.owned === null || state.owned === undefined) {
+        return state;
+      }
+      return { owned: state.owned.filter(deck => deck.id !== action.payload.id) };
     }
   }
 });
@@ -34,7 +49,7 @@ export const loadDecks = () => {
     const state = getState();
     if (state.user.id !== 0) {
       const response = await deckService.getUserDecks(state.user.id, state.user.token);
-      dispatch(setDecks(response.data));
+      dispatch(setDecks({ owned: response.data }));
     } else {
       dispatch(setDecks(initialState));
     }

@@ -25,17 +25,17 @@ const Practice = (): React.JSX.Element => {
   return (
     <Layout>
       <>
-      { deck !== undefined && deck !== null && <p>{deck.name}</p> }
-      { deck === undefined && (
-        <Stack
-          justifyContent="center"
-          direction="row"
-          alignItems="center"
-        >
-          <CircularProgress />
-        </Stack>
-      )}
-      { deck === null && <p>Error</p> }
+        { deck !== undefined && deck !== null && <p>{deck.name}</p> }
+        { deck === undefined && (
+          <Stack
+            justifyContent="center"
+            direction="row"
+            alignItems="center"
+          >
+            <CircularProgress />
+          </Stack>
+        )}
+        { deck === null && <p>Error</p> }
       </>
     </Layout>
   );
