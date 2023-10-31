@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import List from '@mui/material/List';
 import Button from '@mui/material/Button';
@@ -9,7 +9,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 
-import { useEffect } from 'react';
 import {
   useRequiredField,
   useAppDispatch,
@@ -17,22 +16,22 @@ import {
   useLoad
 } from '../../hooks';
 import { updateDeck, replaceDeck } from '../../slices/decksSlice';
-import cardService from '../../services/cardService'
-import type { Deck } from '../../services/deckService'
-import type { Card as CardType } from '../../services/cardService'
+import cardService from '../../services/cardService';
+import type { IDeck } from '../../services/deckService';
+import type { Card as CardType } from '../../services/cardService';
 import { setSuccess, setGenericError } from '../../slices/messageSlice';
 
-import DynamicForm from '../DynamicForm';
+import DynamicForm from '../Layout/DynamicForm';
+import Paginated from '../Layout/Paginated';
 import Card from './Card';
-import Paginated from '../Paginated';
 
-type DeckEditFormProps = {
-  open: boolean,
-  handleClose: () => void,
-  deck: Deck
+export interface IProps {
+  open: boolean
+  handleClose: () => void
+  deck: IDeck
 }
 
-const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
+const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element => {
   const dispatch = useAppDispatch();
   const name = useRequiredField('Name', 'text');
   const token = useAppSelector(store => store.user.token);
@@ -46,7 +45,7 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
   [open], open);
 
   useEffect(() => {
-    if (cards !== null && deck.cards_count != cards.length) {
+    if (cards !== null && deck.cards_count !== cards.length) {
       const updatedDeck = {
         ...deck,
         cards_count: cards.length
@@ -65,64 +64,64 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
     }
   }, [open]);
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     if (name.validate()) {
       handleClose();
 
       const updatedDeck = {
         ...deck,
         name: name.value,
-        shared: shared
+        shared
       };
 
-      dispatch(updateDeck(updatedDeck));
+      void dispatch(updateDeck(updatedDeck));
       name.clear();
     }
   };
 
-  const updateCard = (updatedCard?: CardType) => {
-    if (cards !== null && updatedCard) {
+  const updateCard = (updatedCard?: CardType): void => {
+    if (cards !== null && updatedCard !== undefined) {
       setCards(cards.map(card => card.id === updatedCard.id ? updatedCard : card));
       dispatch(setSuccess('Card updated succesfully'));
     }
   };
 
-  const appendCard = (newCard?: CardType) => {
-    if (cards !== null && newCard) {
+  const appendCard = (newCard?: CardType): void => {
+    if (cards !== null && newCard !== undefined) {
       setCards(cards.concat(newCard));
       dispatch(setSuccess('Card created succesfully'));
     }
     setShowNewCard(false);
   };
 
-  const toggleSelected = (id: number) => {
+  const toggleSelected = (id: number): void => {
     if (selectedCards.includes(id)) {
-      setSelectedCards(selectedCards.filter(n => n !== id))
+      setSelectedCards(selectedCards.filter(n => n !== id));
     } else {
-      setSelectedCards(selectedCards.concat(id))
+      setSelectedCards(selectedCards.concat(id));
     }
-  }
+  };
 
-  const deleteCards = () => {
+  const deleteCards = (): void => {
     setDeletingCards(true);
 
     try {
       selectedCards.forEach(id => {
-        cardService.deleteCard(id, token);
+        void cardService.deleteCard(id, token);
       });
-      if (cards) {
+      if (cards !== null) {
         setCards(cards.filter(card => !selectedCards.includes(card.id)));
       }
       setSelectedCards([]);
       dispatch(setSuccess('Cards deleted succesfully'));
     } catch (e) {
-      dispatch(setGenericError(e))
+      void dispatch(setGenericError(e));
     } finally {
       setDeletingCards(false);
     }
-  }
+  };
 
-  const filterCard = (card: CardType, filter: string) => {
+  const filterCard = (card: CardType, filter: string): boolean => {
     return card.front.toLowerCase().includes(filter) ||
            card.back.toLowerCase().includes(filter);
   };
@@ -150,7 +149,7 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
               aria-label="Name"
               inputProps={{ 'aria-label': 'controlled' }}
               checked={shared}
-              onChange={() => setShared(!shared)}
+              onChange={() => { setShared(!shared); }}
             />
           )}/>
         </Grid>
@@ -163,7 +162,7 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
                 variant="contained"
                 fullWidth
                 disabled={showNewCard}
-                onClick={() => setShowNewCard(true)}
+                onClick={() => { setShowNewCard(true); }}
               >
                 Add
               </Button>
@@ -173,14 +172,14 @@ const DeckEditForm = ({open, handleClose, deck}: DeckEditFormProps) => {
                 color="error"
                 variant="contained"
                 fullWidth
-                disabled={deletingCards || !selectedCards.length}
+                disabled={deletingCards || (selectedCards.length === 0)}
                 onClick={deleteCards}
                 loading={deletingCards}
                 sx={{
                   height: '100%'
                 }}
               >
-                {!deletingCards && "Remove"}
+                {!deletingCards && 'Remove'}
               </LoadingButton>
             </Grid>
             <Grid item xs={6} />

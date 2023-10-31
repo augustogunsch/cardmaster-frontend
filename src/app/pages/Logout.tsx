@@ -3,12 +3,12 @@ import { useAppDispatch } from '../hooks';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
-const Logout = () => {
+const Logout = (): null => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(logout())
+    void dispatch(logout());
     navigate('/');
   }, []);
 

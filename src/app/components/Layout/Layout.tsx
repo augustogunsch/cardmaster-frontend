@@ -1,10 +1,15 @@
+import React from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
+import Navbar from './Navbar';
+import Footer from './Footer';
 
-const Layout = ({children}: {children: JSX.Element | JSX.Element[] | undefined}) => {
+export interface IProps {
+  children: React.JSX.Element | React.JSX.Element[] | undefined
+}
+
+const Layout = ({ children }: IProps): React.JSX.Element => {
   return (
     <>
       <Container
@@ -27,7 +32,7 @@ const Layout = ({children}: {children: JSX.Element | JSX.Element[] | undefined})
               marginBottom: 5
             }}
           >
-            {children && children}
+            {children !== undefined && children}
           </Container>
           <Footer />
         </Box>

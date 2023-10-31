@@ -1,8 +1,12 @@
-import Container from '@mui/material/Container';
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
+import React from 'react';
 
-const Footer = () => {
+import {
+  Container,
+  Link,
+  Typography
+} from '@mui/material';
+
+const Footer = (): React.JSX.Element => {
   return (
     <Container
       maxWidth={false}
@@ -26,7 +30,7 @@ const Footer = () => {
         </Link>
       </Typography>
     </Container>
-  )
+  );
 };
 
 export default Footer;

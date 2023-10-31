@@ -1,43 +1,43 @@
 import axios from 'axios';
-import { Deck } from './deckService';
+import type { IDeck } from './deckService';
 
 const usersUrl = 'http://localhost:5000/users';
 const authUrl = 'http://localhost:5000/auth';
 
-export type User = {
-  id: number,
-  username: string,
+export interface IUser {
+  id: number
+  username: string
   admin: boolean
 }
 
-export interface LoginResponse {
-  user: User,
+export interface ILoginResponse {
+  user: IUser
   token: string
 }
 
-export interface RegisterReponse {
-  data: User,
+export interface IRegisterReponse {
+  data: IUser
 }
 
-export interface AddReponse {
-  data: Deck,
+export interface IAddReponse {
+  data: IDeck
 }
 
-const login = async (username: string, password: string): Promise<LoginResponse> => {
+const login = async (username: string, password: string): Promise<ILoginResponse> => {
   const response = await axios.post(authUrl, { username, password });
   return response.data;
 };
 
-const register = async (username: string, password: string): Promise<RegisterReponse> => {
+const register = async (username: string, password: string): Promise<IRegisterReponse> => {
   const response = await axios.post(usersUrl, { username, password });
   return response.data;
 };
 
-const addDeck = async (userId: number, deckId: number, token: string): Promise<AddReponse> => {
+const addDeck = async (userId: number, deckId: number, token: string): Promise<IAddReponse> => {
   const response = await axios.post(
     `${usersUrl}/${userId}/decks/${deckId}`,
     {},
-    {headers: {'Authorization': token}}
+    { headers: { Authorization: token } }
   );
   return response.data;
 };

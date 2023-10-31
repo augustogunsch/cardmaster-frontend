@@ -1,19 +1,21 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../slices/userSlice'
-import { useRequiredField, useValidate, useAppDispatch, useAppSelector } from '../hooks'
-import Layout from '../components/Layout'
-import { setGenericError } from '../slices/messageSlice'
 
+import {
+  Button,
+  Grid,
+  Box,
+  TextField,
+  Typography
+} from '@mui/material';
+
+import { login } from '../slices/userSlice';
+import { useRequiredField, useValidate, useAppDispatch, useAppSelector } from '../hooks';
+import Layout from '../components/Layout/Layout';
+import { setGenericError } from '../slices/messageSlice';
 import userService from '../services/userService';
 
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-
-const Login = () => {
+const Login = (): React.JSX.Element => {
   const user = useAppSelector(store => store.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -22,32 +24,32 @@ const Login = () => {
   const validate = useValidate([username.validate, password.validate]);
 
   useEffect(() => {
-    if (user.id) {
+    if (user.id !== 0) {
       navigate('/');
     }
   }, [user]);
 
-  const handleLogin = () => {
+  const handleLogin = (): void => {
     if (validate()) {
-      dispatch(login(username.value, password.value));
+      void dispatch(login(username.value, password.value));
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     handleLogin();
   };
 
-  const handleRegister = async () => {
+  const handleRegister = async (): Promise<void> => {
     if (validate()) {
       try {
         await userService.register(username.value, password.value);
-        dispatch(login(username.value, password.value));
+        void dispatch(login(username.value, password.value));
       } catch (e) {
-        dispatch(setGenericError(e));
+        void dispatch(setGenericError(e));
       }
     }
-  }
+  };
 
   return (
     <Layout>
@@ -66,7 +68,7 @@ const Login = () => {
               borderStyle: 'solid',
               borderRadius: '8px',
               backgroundColor: 'white',
-              padding: 4,
+              padding: 4
             }}
           >
             <Grid
@@ -104,7 +106,7 @@ const Login = () => {
                   color="primary"
                   variant="outlined"
                   fullWidth
-                  onClick={handleRegister}
+                  onClick={() => { void handleRegister(); }}
                 >
                   Sign up
                 </Button>
@@ -129,4 +131,4 @@ const Login = () => {
   );
 };
 
-export default Login
+export default Login;

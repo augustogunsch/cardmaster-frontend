@@ -1,28 +1,29 @@
+import React from 'react';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import { useRequiredField, useAppDispatch } from '../../hooks';
 import { createDeck } from '../../slices/decksSlice';
 
-import DynamicForm from '../DynamicForm';
+import DynamicForm from '../Layout/DynamicForm';
 
-type DeckCreateFormProps = {
-  open: boolean,
+export interface IProps {
+  open: boolean
   handleClose: () => void
 }
 
-const DeckCreateForm = ({open, handleClose}: DeckCreateFormProps) => {
+const DeckCreateForm = ({ open, handleClose }: IProps): React.JSX.Element => {
   const name = useRequiredField('Name', 'text');
   const dispatch = useAppDispatch();
 
-  const myHandleClose = () => {
+  const myHandleClose = (): void => {
     handleClose();
     name.clear();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     if (name.validate()) {
       handleClose();
-      dispatch(createDeck(name.value));
+      void dispatch(createDeck(name.value));
       name.clear();
     }
   };

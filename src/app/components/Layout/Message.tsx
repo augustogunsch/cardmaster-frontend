@@ -1,12 +1,15 @@
-import { Snackbar, Alert } from '@mui/material';
-import { useAppSelector, useAppDispatch } from '../hooks'
-import { closeMessage } from '../slices/messageSlice'
+import React from 'react';
 
-const Message = () => {
+import { Snackbar, Alert } from '@mui/material';
+
+import { useAppSelector, useAppDispatch } from '../../hooks';
+import { closeMessage } from '../../slices/messageSlice';
+
+const Message = (): React.JSX.Element => {
   const dispatch = useAppDispatch();
   const message = useAppSelector(store => store.message);
 
-  const onClose = () => {
+  const onClose = (): void => {
     dispatch(closeMessage());
   };
 
@@ -19,4 +22,4 @@ const Message = () => {
   );
 };
 
-export default Message
+export default Message;

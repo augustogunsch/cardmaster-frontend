@@ -5,14 +5,14 @@ const decksUrl = 'http://localhost:5000/decks';
 const cardsUrl = 'http://localhost:5000/cards';
 
 export interface ICard {
-  front: string,
+  front: string
   back: string
 };
 
 export type Card = ICard & {
-  id: number,
-  knowledge_level: number,
-  last_revised: Date | null,
+  id: number
+  knowledge_level: number
+  last_revised: Date | null
   revision_due: Date | null
 };
 
@@ -29,10 +29,10 @@ export interface INumberResponse {
 };
 
 export interface IGetCardsParams {
-  q?: string,
-  limit?: number,
-  offset?: number,
-  new?: boolean,
+  q?: string
+  limit?: number
+  offset?: number
+  new?: boolean
   due?: string
 };
 
@@ -42,15 +42,15 @@ const getCards = async (deckId: number, token: string, params?: IGetCardsParams)
     { ...AuthHeader(token), params }
   );
   return response.data;
-}
+};
 
 const countCards = async (deckId: number, token: string, params?: IGetCardsParams): Promise<INumberResponse> => {
   const response = await axios.get(
     `${decksUrl}/${deckId}/cards`,
-    { ...AuthHeader(token), params: {...params, count: true} }
+    { ...AuthHeader(token), params: { ...params, count: true } }
   );
   return response.data;
-}
+};
 
 const createCard = async (card: ICard, deckId: number, token: string): Promise<ICardResponse> => {
   const response = await axios.post(
@@ -84,4 +84,4 @@ export default {
   createCard,
   updateCard,
   deleteCard
-}
+};

@@ -1,13 +1,24 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
+import React from 'react';
+import {
+  Box,
+  Typography
+} from '@mui/material';
 
-import Layout from '../components/Layout'
-import Deck from '../components/Community/Deck'
-import Paginated from '../components/Paginated'
-import decksService from '../services/deckService'
+import Layout from '../components/Layout/Layout';
+import Deck from '../components/Community/Deck';
+import Paginated from '../components/Layout/Paginated';
+import decksService from '../services/deckService';
+import type { IDeck } from '../services/deckService';
 
-const Community = () => {
-  const getDecks = async (page: number, pageLength: number, filter: string) => {
+const Community = (): React.JSX.Element => {
+  const getDecks = async (
+    page: number,
+    pageLength: number,
+    filter: string
+  ): Promise<{
+    elements: IDeck[]
+    count: number
+  }> => {
     const decks = decksService.getDecks(filter, pageLength, (page - 1) * pageLength);
     const decksCount = decksService.getDecksCount(filter);
 

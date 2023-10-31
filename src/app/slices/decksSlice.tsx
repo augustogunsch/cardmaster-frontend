@@ -1,27 +1,27 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { setSuccess, setGenericError } from './messageSlice'
-import deckService from '../services/deckService'
-import userService from '../services/userService'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import type { Deck } from '../services/deckService'
-import type { AppDispatch, AppGetState } from '../store'
+import { createSlice } from '@reduxjs/toolkit';
+import { setSuccess, setGenericError } from './messageSlice';
+import deckService from '../services/deckService';
+import userService from '../services/userService';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { IDeck } from '../services/deckService';
+import type { AppDispatch, AppGetState } from '../store';
 
-const initialState: Deck[] = [];
+const initialState: IDeck[] = [];
 
 export const decksSlice = createSlice({
   name: 'decks',
   initialState,
   reducers: {
-    setDecks: (_state, action: PayloadAction<Deck[]>) => {
+    setDecks: (_state, action: PayloadAction<IDeck[]>) => {
       return action.payload;
     },
-    appendDeck: (state, action: PayloadAction<Deck>) => {
+    appendDeck: (state, action: PayloadAction<IDeck>) => {
       state.push(action.payload);
     },
-    replaceDeck: (state, action: PayloadAction<Deck>) => {
+    replaceDeck: (state, action: PayloadAction<IDeck>) => {
       return state.map(deck => deck.id === action.payload.id ? action.payload : deck);
     },
-    removeDeck: (state, action: PayloadAction<Deck>) => {
+    removeDeck: (state, action: PayloadAction<IDeck>) => {
       return state.filter(deck => deck.id !== action.payload.id);
     }
   }
@@ -32,7 +32,7 @@ export const { setDecks, appendDeck, replaceDeck } = decksSlice.actions;
 export const loadDecks = () => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
-    if (state.user.id) {
+    if (state.user.id !== 0) {
       const response = await deckService.getUserDecks(state.user.id, state.user.token);
       dispatch(setDecks(response.data));
     } else {
@@ -49,7 +49,7 @@ export const createDeck = (name: string) => {
   };
 };
 
-export const updateDeck = (deck: Deck) => {
+export const updateDeck = (deck: IDeck) => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
     try {
@@ -57,7 +57,7 @@ export const updateDeck = (deck: Deck) => {
       dispatch(replaceDeck(response.data));
       dispatch(setSuccess('Deck updated successfully'));
     } catch (e) {
-      dispatch(setGenericError(e));
+      void dispatch(setGenericError(e));
     }
   };
 };
@@ -70,10 +70,10 @@ export const deleteDeck = (deckId: number) => {
       dispatch(decksSlice.actions.removeDeck(response.data));
       dispatch(setSuccess('Deck deleted successfully'));
     } catch (e) {
-      dispatch(setGenericError(e));
+      void dispatch(setGenericError(e));
     }
   };
-}
+};
 
 export const duplicateDeck = (deckId: number) => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
@@ -83,9 +83,9 @@ export const duplicateDeck = (deckId: number) => {
       dispatch(appendDeck(response.data));
       dispatch(setSuccess('Deck cloned successfully'));
     } catch (e) {
-      dispatch(setGenericError(e));
+      void dispatch(setGenericError(e));
     }
   };
-}
+};
 
 export default decksSlice.reducer;

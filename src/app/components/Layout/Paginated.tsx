@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   Box,
@@ -8,15 +8,15 @@ import {
   Typography
 } from '@mui/material';
 
-import { useField, useAppDispatch } from '../hooks'
-import { setGenericError } from '../slices/messageSlice'
-import Search from '../components/Search';
+import { useField, useAppDispatch } from '../../hooks';
+import { setGenericError } from '../../slices/messageSlice';
+import Search from '../../components/Search';
 
 interface IElementListProps<T> {
-  elementNamePlural: string;
-  elements: T[] | null;
-  elementMapper: (element: T) => JSX.Element;
-  children?: JSX.Element | JSX.Element[] | false;
+  elementNamePlural: string
+  elements: T[] | null
+  elementMapper: (element: T) => JSX.Element
+  children?: JSX.Element | JSX.Element[] | boolean
 };
 
 const ElementList = <T extends object>({
@@ -24,12 +24,12 @@ const ElementList = <T extends object>({
   elementNamePlural,
   elementMapper,
   children
-}: IElementListProps<T>) => {
+}: IElementListProps<T>): React.JSX.Element => {
   if (elements === null) {
     return <Stack alignItems="center"><CircularProgress /></Stack>;
   }
 
-  if (!elements.length && !children) {
+  if ((elements.length === 0) && children === undefined) {
     return <Typography>No {elementNamePlural} found.</Typography>;
   }
 
@@ -42,25 +42,25 @@ const ElementList = <T extends object>({
 };
 
 type GetElementsCallback<T> =
-  (page: number, pageLength: number, filter: string) => Promise<{elements: T[], count: number}>;
+  (page: number, pageLength: number, filter: string) => Promise<{ elements: T[], count: number }>;
 
 export interface IPaginatedProps<T> {
-  pageLength: number;
-  elementNamePlural?: string;
-  getElements: T[] | null | GetElementsCallback<T>;
-  elementMapper: (element: T) => JSX.Element;
-  filter?: boolean | ((element: T, filter: string) => boolean);
-  children?: JSX.Element | JSX.Element[] | false;
+  pageLength: number
+  elementNamePlural?: string
+  getElements: T[] | null | GetElementsCallback<T>
+  elementMapper: (element: T) => JSX.Element
+  filter?: boolean | ((element: T, filter: string) => boolean)
+  children?: JSX.Element | JSX.Element[] | boolean
 };
 
 const Paginated = <T extends object>({
   pageLength,
-  elementNamePlural="items",
+  elementNamePlural = 'items',
   getElements,
   elementMapper,
   filter,
   children
-}: IPaginatedProps<T>) => {
+}: IPaginatedProps<T>): React.JSX.Element => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
   const [elements, setElements] = useState<T[] | null>(null);
@@ -70,21 +70,23 @@ const Paginated = <T extends object>({
   useEffect(() => {
     if (typeof getElements === 'function') {
       setElements(null);
-      getElements(page, pageLength, searchField.value).then(({elements, count}) => {
+      getElements(page, pageLength, searchField.value).then(({ elements, count }) => {
         setPageCount(Math.ceil(count / pageLength));
         setElements(elements);
       }).catch(e => {
         setElements([]);
         setPageCount(0);
-        dispatch(setGenericError(e))
+        void dispatch(setGenericError(e));
       });
     } else if (getElements === null) {
       setPageCount(1);
       setElements(null);
     } else {
-      const filteredElements = typeof filter === 'function' ? getElements.filter(element =>
-        filter(element, searchField.value.toLowerCase())
-      ) : getElements;
+      const filteredElements = typeof filter === 'function'
+        ? getElements.filter(element =>
+          filter(element, searchField.value.toLowerCase())
+        )
+        : getElements;
       setPageCount(Math.max(Math.ceil(filteredElements.length / pageLength), 1));
       const startI = (page - 1) * pageLength;
       const endI = page * pageLength;
@@ -93,18 +95,18 @@ const Paginated = <T extends object>({
   }, [page, getElements, searchField.value]);
 
   useEffect(() => {
-    if(page > pageCount) {
+    if (page > pageCount) {
       setPage(pageCount);
     }
   }, [pageCount]);
 
-  const handlePageChange = (_event: unknown, value: number) => {
+  const handlePageChange = (_event: unknown, value: number): void => {
     setPage(value);
-  }
+  };
 
   return (
     <Box>
-      {filter && (
+      {filter !== undefined && filter !== false && (
         <Search
           searchField={searchField}
           style={{

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -23,13 +23,13 @@ import ConfirmDialog from '../ConfirmDialog';
 import { deleteDeck, duplicateDeck } from '../../slices/decksSlice';
 import { useAppSelector, useAppDispatch, useLoad } from '../../hooks';
 import cardService from '../../services/cardService';
-import type { Deck } from '../../services/deckService';
+import type { IDeck } from '../../services/deckService';
 
-type DeckAccordionProps = {
-  deck: Deck
+export interface IProps {
+  deck: IDeck
 }
 
-const Deck = ({deck}: DeckAccordionProps) => {
+const Deck = ({ deck }: IProps): React.JSX.Element => {
   const [openForm, setOpenForm] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -45,22 +45,22 @@ const Deck = ({deck}: DeckAccordionProps) => {
     await cardService.countCards(deck.id, token, { due: new Date().toISOString() }),
   [expanded], expanded);
 
-  const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpen = (event: React.MouseEvent<HTMLElement>): void => {
     event.stopPropagation();
     setOpenForm(true);
   };
 
-  const handleDuplicate = (event: React.MouseEvent<HTMLElement>) => {
+  const handleDuplicate = (event: React.MouseEvent<HTMLElement>): void => {
     event.stopPropagation();
-    dispatch(duplicateDeck(deck.id));
+    void dispatch(duplicateDeck(deck.id));
   };
 
-  const handleDelete = () => {
-    dispatch(deleteDeck(deck.id));
+  const handleDelete = (): void => {
+    void dispatch(deleteDeck(deck.id));
     setOpenDeleteDialog(false);
   };
 
-  const handleExpand = (_event: React.SyntheticEvent, isExpanded: boolean) => {
+  const handleExpand = (_event: React.SyntheticEvent, isExpanded: boolean): void => {
     setExpanded(isExpanded);
   };
 
@@ -76,7 +76,7 @@ const Deck = ({deck}: DeckAccordionProps) => {
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            width: '100%',
+            width: '100%'
           }}
         >
           <Box
@@ -140,7 +140,7 @@ const Deck = ({deck}: DeckAccordionProps) => {
                 <Button
                   variant="text"
                   color="error"
-                  onClick={() => setOpenDeleteDialog(true)}
+                  onClick={() => { setOpenDeleteDialog(true); }}
                 >
                   Delete deck
                 </Button>
@@ -151,12 +151,12 @@ const Deck = ({deck}: DeckAccordionProps) => {
       </AccordionDetails>
       <DeckEditForm
         open={openForm}
-        handleClose={() => setOpenForm(false)}
+        handleClose={() => { setOpenForm(false); }}
         deck={deck}
       />
       <ConfirmDialog
         open={openDeleteDialog}
-        handleClose={() => setOpenDeleteDialog(false)}
+        handleClose={() => { setOpenDeleteDialog(false); }}
         handleConfirm={handleDelete}
         title="Delete deck"
         deleteButton

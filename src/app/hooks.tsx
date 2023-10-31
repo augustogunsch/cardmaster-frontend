@@ -1,25 +1,26 @@
 import { useState, useEffect } from 'react';
 import type { DependencyList, Dispatch, SetStateAction } from 'react';
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import type { TypedUseSelectorHook } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { RootState, AppDispatch } from './store';
+import type { RootState, AppDispatch } from './store';
 import { setGenericError } from './slices/messageSlice';
 
-type InputProps = {
-  value: string,
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
-  type: string,
-  error: boolean,
+interface InputProps {
+  value: string
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  type: string
+  error: boolean
   helperText: string
-};
+}
 
-export type UseField = {
-  inputProps: InputProps,
-  value: string,
-  clear: () => void,
-  setError: (value: string) => void,
+export interface UseField {
+  inputProps: InputProps
+  value: string
+  clear: () => void
+  setError: (value: string) => void
   setValue: (value: string) => void
-};
+}
 
 type UseRequiredField = UseField & {
   validate: () => boolean
@@ -29,12 +30,12 @@ export const useField = (type: string): UseField => {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
 
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setValue(event.target.value);
     setError('');
   };
 
-  const clear = () => {
+  const clear = (): void => {
     setValue('');
     setError('');
   };
@@ -59,8 +60,9 @@ export const useField = (type: string): UseField => {
 export const useRequiredField = (name: string, type: string): UseRequiredField => {
   const field = useField(type);
 
-  const validate = () => {
-    if((type === 'password' && !field.value) || (type !== 'password' && !field.value.trim())) {
+  const validate = (): boolean => {
+    if ((type === 'password' && field.value.length === 0) ||
+        (type !== 'password' && field.value.trim().length === 0)) {
       field.setError(`${name} is required`);
       return false;
     }
@@ -74,28 +76,26 @@ export const useRequiredField = (name: string, type: string): UseRequiredField =
   };
 };
 
-export const useValidate = (validateFunctions: (() => boolean)[]): () => boolean => () => (
+export const useValidate = (validateFunctions: Array<() => boolean>): () => boolean => () => (
   validateFunctions.reduce((acc, fun) => fun() && acc, true)
 );
 
 export const useLoad = <T = any>(
-  fetch: () => Promise<{data: T}>,
+  fetch: () => Promise<{ data: T }>,
   deps: DependencyList | undefined,
   condition: boolean
 ): [
-  T | null,
-  Dispatch<SetStateAction<T | null>>
-] => {
+    T | null,
+    Dispatch<SetStateAction<T | null>>
+  ] => {
   const [elements, setElements] = useState<T | null>(null);
   const dispatch = useAppDispatch();
 
-  const create = () => {
+  const create = (): void => {
     if (condition) {
-      try {
-        fetch().then(response => setElements(response.data));
-      } catch (e) {
-        dispatch(setGenericError(e));
-      }
+      fetch()
+        .then(response => { setElements(response.data); })
+        .catch(e => { void dispatch(setGenericError(e)); });
     } else {
       setElements(null);
     }

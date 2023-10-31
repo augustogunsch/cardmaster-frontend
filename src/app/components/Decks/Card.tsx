@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useTheme } from '@mui/material/styles';
 import ListItem from '@mui/material/ListItem';
@@ -12,18 +12,19 @@ import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
 import ClearIcon from '@mui/icons-material/Clear';
 
 import { useRequiredField, useAppSelector, useAppDispatch, useValidate } from '../../hooks';
-import cardService, { Card as CardType } from '../../services/cardService';
+import cardService from '../../services/cardService';
 import { setGenericError } from '../../slices/messageSlice';
+import type { Card as CardType } from '../../services/cardService';
 
-type CardProps = {
-  card: CardType | null,
-  deckId: number,
-  selected: boolean,
-  submitCallback: (card?: CardType) => void,
+export interface IProps {
+  card: CardType | null
+  deckId: number
+  selected: boolean
+  submitCallback: (card?: CardType) => void
   toggleSelected: (id: number) => void
 }
 
-const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProps) => {
+const Card = ({ card, deckId, selected, toggleSelected, submitCallback }: IProps): React.JSX.Element => {
   const theme = useTheme();
   const front = useRequiredField('Front', 'text');
   const back = useRequiredField('Back', 'text');
@@ -32,7 +33,7 @@ const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProp
   const token = useAppSelector(store => store.user.token);
   const dispatch = useAppDispatch();
 
-  const resetDefault = () => {
+  const resetDefault = (): void => {
     if (card !== null) {
       front.setValue(card.front);
       back.setValue(card.back);
@@ -49,29 +50,29 @@ const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProp
   }, [card]);
 
   useEffect(() => {
-    if (card !== null && front.value && back.value) {
+    if (card !== null && front.value.length > 0 && back.value.length > 0) {
       setModified(front.value !== card.front || back.value !== card.back);
     } else {
       setModified(Boolean(front.value.trim()) || Boolean(back.value.trim()));
     }
   }, [front, back]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLElement>): Promise<void> => {
     e.preventDefault();
 
     if (validate()) {
       try {
-        if (card) {
-          const newCard = {...card, front: front.value, back: back.value};
+        if (card !== null) {
+          const newCard = { ...card, front: front.value, back: back.value };
           const response = await cardService.updateCard(newCard, token);
           submitCallback(response.data);
         } else {
-          const newCard = {front: front.value, back: back.value};
+          const newCard = { front: front.value, back: back.value };
           const response = await cardService.createCard(newCard, deckId, token);
           submitCallback(response.data);
         }
       } catch (e) {
-        dispatch(setGenericError(e));
+        void dispatch(setGenericError(e));
       }
     }
   };
@@ -80,11 +81,11 @@ const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProp
     <ListItem
       sx={{
         padding: 0,
-        marginTop: 2,
+        marginTop: 2
       }}
     >
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit as (e: React.FormEvent<HTMLElement>) => void}
         style={{
           width: '100%'
         }}
@@ -100,16 +101,16 @@ const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProp
           }}
           alignItems="center"
         >
-          {card && (
+          {card !== null && (
             <Checkbox
               checked={selected}
-              onChange={() => card && toggleSelected(card.id)}
+              onChange={() => { toggleSelected(card.id); }}
             />
           )}
-          {!card && (
+          {card === null && (
             <IconButton
               color="inherit"
-              onClick={() => submitCallback()}
+              onClick={() => { submitCallback(); }}
             >
               <ClearIcon />
             </IconButton>
@@ -128,7 +129,7 @@ const Card = ({card, deckId, selected, toggleSelected, submitCallback}: CardProp
               label="Front"
               variant="standard"
               fullWidth
-              autoFocus={Boolean(!card)}
+              autoFocus={card === null}
               {...front.inputProps}
             />
             <TextField

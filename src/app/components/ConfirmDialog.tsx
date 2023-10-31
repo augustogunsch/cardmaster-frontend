@@ -1,19 +1,28 @@
+import React from 'react';
+
 import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Dialog from '@mui/material/Dialog';
 
-type ConfirmDialogProps = {
-  open: boolean,
-  handleClose: () => void,
-  handleConfirm: () => void,
-  title: string,
-  deleteButton?: boolean,
-  children: JSX.Element | JSX.Element[]
+export interface IProps {
+  open: boolean
+  handleClose: () => void
+  handleConfirm: () => void
+  title: string
+  deleteButton?: boolean
+  children: React.JSX.Element | React.JSX.Element[]
 }
 
-const ConfirmDialog = ({title, open, handleConfirm, handleClose, deleteButton=false, children} : ConfirmDialogProps) => {
+const ConfirmDialog = ({
+  title,
+  open,
+  handleConfirm,
+  handleClose,
+  deleteButton = false,
+  children
+}: IProps): React.JSX.Element => {
   return (
     <Dialog
       open={open}
@@ -42,6 +51,6 @@ const ConfirmDialog = ({title, open, handleConfirm, handleClose, deleteButton=fa
       </DialogActions>
     </Dialog>
   );
-}
+};
 
 export default ConfirmDialog;

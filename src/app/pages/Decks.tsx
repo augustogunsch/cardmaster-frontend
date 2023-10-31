@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../hooks'
+import React, { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { loadDecks } from '../slices/decksSlice';
 
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import Layout from '../components/Layout'
-import Deck from '../components/Decks/Deck'
-import DeckCreateForm from '../components/Decks/DeckCreateForm'
-import Paginated from '../components/Paginated'
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Layout from '../components/Layout/Layout';
+import Deck from '../components/Decks/Deck';
+import DeckCreateForm from '../components/Decks/DeckCreateForm';
+import Paginated from '../components/Layout/Paginated';
 
-const Decks = () => {
+const Decks = (): React.JSX.Element => {
   const [open, setOpen] = useState(false);
   const decks = useAppSelector(store => store.decks);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(loadDecks());
+    void dispatch(loadDecks());
   }, []);
 
   return (
@@ -31,7 +31,7 @@ const Decks = () => {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => setOpen(true)}
+          onClick={() => { setOpen(true); }}
         >
           Create Deck
         </Button>
@@ -45,7 +45,7 @@ const Decks = () => {
           )}
         />
       </Box>
-      <DeckCreateForm open={open} handleClose={() => setOpen(false)}/>
+      <DeckCreateForm open={open} handleClose={() => { setOpen(false); }}/>
     </Layout>
   );
 };

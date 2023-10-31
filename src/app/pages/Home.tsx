@@ -1,17 +1,17 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useAppSelector } from '../hooks'
-import Layout from '../components/Layout'
+import { useAppSelector } from '../hooks';
+import Layout from '../components/Layout/Layout';
 
-import Typography from '@mui/material/Typography'
+import Typography from '@mui/material/Typography';
 
-const Home = () => {
+const Home = (): React.JSX.Element => {
   const user = useAppSelector(store => store.user);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user.id) {
+    if (user.id === 0) {
       navigate('/login');
     }
   }, []);

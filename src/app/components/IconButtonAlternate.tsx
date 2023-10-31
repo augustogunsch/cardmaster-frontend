@@ -1,17 +1,18 @@
-import { useState } from 'react';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
+import React, { useState } from 'react';
+import IconButton from '@mui/material/IconButton';
+import type { IconButtonProps } from '@mui/material/IconButton';
 
-type IconButtonAlternateProps = IconButtonProps & {
-  iconA: React.ReactNode,
-  iconB: React.ReactNode,
+export interface IProps extends IconButtonProps {
+  iconA: React.ReactNode
+  iconB: React.ReactNode
 }
 
-const IconButtonAlternate = (props: IconButtonAlternateProps) => {
-  const {iconA, iconB, disabled, onClick, children, ...restProps} = props;
+const IconButtonAlternate = (props: IProps): React.JSX.Element => {
+  const { iconA, iconB, disabled, onClick, children, ...restProps } = props;
   const [showA, setShowA] = useState(true);
 
-  const onClickDecorated = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (onClick) {
+  const onClickDecorated = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    if (onClick !== undefined) {
       onClick(e);
     }
 
@@ -23,7 +24,7 @@ const IconButtonAlternate = (props: IconButtonAlternateProps) => {
 
   return (
     <IconButton
-      disabled={disabled || !showA}
+      disabled={disabled ?? !showA}
       onClick={onClickDecorated}
       {...restProps}
     >

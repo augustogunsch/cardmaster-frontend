@@ -1,35 +1,44 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import Dialog from '@mui/material/Dialog';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import CloseIcon from '@mui/icons-material/Close';
-import Slide from '@mui/material/Slide';
-import { TransitionProps } from '@mui/material/transitions';
+import React from 'react';
+
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import {
+  Button,
+  Container,
+  Dialog,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Slide
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import type { TransitionProps } from '@mui/material/transitions';
 
-type FullscreenFormProps = {
-  open: boolean,
-  handleClose: () => void,
-  handleSubmit: () => void,
-  title: string,
-  children: JSX.Element | JSX.Element[]
+export interface IProps {
+  open: boolean
+  handleClose: () => void
+  handleSubmit: () => void
+  title: string
+  children: React.JSX.Element | React.JSX.Element[]
 }
 
-const Transition = React.forwardRef(function Transition(
+const Transition = React.forwardRef(function Transition (
   props: TransitionProps & {
-    children: React.ReactElement;
+    children: React.ReactElement
   },
-  ref: React.Ref<unknown>,
+  ref: React.Ref<unknown>
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const DynamicForm = ({open, handleClose, handleSubmit, title, children}: FullscreenFormProps) => {
+const DynamicForm = ({
+  open,
+  handleClose,
+  handleSubmit,
+  title,
+  children
+}: IProps): React.JSX.Element => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 

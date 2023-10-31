@@ -1,12 +1,15 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Box,
+  Grid,
+  IconButton,
+  Typography
+} from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -15,33 +18,33 @@ import DoneIcon from '@mui/icons-material/Done';
 import IconButtonAlternate from '../IconButtonAlternate';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import userService from '../../services/userService';
-import { loadDecks } from '../../slices/decksSlice'
-import { setGenericError, setSuccess } from '../../slices/messageSlice'
-import type { Deck } from '../../services/deckService'
+import { loadDecks } from '../../slices/decksSlice';
+import { setGenericError, setSuccess } from '../../slices/messageSlice';
+import type { IDeck } from '../../services/deckService';
 
-type DeckAccordionProps = {
-  deck: Deck
+interface IProps {
+  deck: IDeck
 }
 
-const Deck = ({deck}: DeckAccordionProps) => {
+const Deck = ({ deck }: IProps): React.JSX.Element => {
   const user = useAppSelector(store => store.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleGetDeck = (e: React.MouseEvent<HTMLElement>) => {
+  const handleGetDeck = (e: React.MouseEvent<HTMLElement>): void => {
     e.stopPropagation();
 
-    if (!user.id) {
+    if (user.id === 0) {
       navigate('/login');
     } else {
       userService.addDeck(user.id, deck.id, user.token).then(() => {
-        dispatch(loadDecks());
-        dispatch(setSuccess('Deck added to collection'))
-      }).catch(error => {
-        dispatch(setGenericError(error))
+        void dispatch(loadDecks());
+        dispatch(setSuccess('Deck added to collection'));
+      }).catch(e => {
+        void dispatch(setGenericError(e));
       });
     }
-  }
+  };
 
   return (
     <Accordion>
@@ -52,7 +55,7 @@ const Deck = ({deck}: DeckAccordionProps) => {
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            width: '100%',
+            width: '100%'
           }}
         >
           <Box
