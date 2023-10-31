@@ -3,28 +3,23 @@ import userService from '../services/userService';
 import { setGenericError } from './messageSlice';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AppDispatch } from '../store';
+import type { IUser } from '../services/userService';
 
-export interface UserState {
-  id: number
-  username: string
-  admin: boolean
-  token: string
-  loaded: boolean
+export interface IUserState {
+  self: IUser | null | undefined
+  token: string | null | undefined
 }
 
-const initialState: UserState = {
-  id: 0,
-  username: '',
-  admin: false,
-  token: '',
-  loaded: false
+const initialState: IUserState = {
+  self: undefined,
+  token: undefined
 };
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUserState: (_state, action: PayloadAction<UserState>) => {
+    setUserState: (_state, action: PayloadAction<IUserState>) => {
       return action.payload;
     }
   }
@@ -37,9 +32,9 @@ export const login = (username: string, password: string) => {
     try {
       const loginInfo = await userService.login(username, password);
 
-      const state = { ...loginInfo.user, token: loginInfo.token, loaded: true };
+      const state = { self: loginInfo.user, token: loginInfo.token };
 
-      localStorage.setItem('user', JSON.stringify(state));
+      localStorage.setItem('userState', JSON.stringify(state));
       dispatch(setUserState(state));
     } catch (e) {
       void dispatch(setGenericError(e));
@@ -49,16 +44,18 @@ export const login = (username: string, password: string) => {
 
 export const logout = () => {
   return async (dispatch: AppDispatch) => {
-    localStorage.removeItem('user');
+    localStorage.removeItem('userState');
     dispatch(setUserState(initialState));
   };
 };
 
 export const loadUser = () => {
   return async (dispatch: AppDispatch) => {
-    const state = localStorage.getItem('user');
+    const state = localStorage.getItem('userState');
     if (state !== null) {
-      dispatch(setUserState({ ...JSON.parse(state), loaded: true }));
+      dispatch(setUserState({ ...JSON.parse(state) }));
+    } else {
+      dispatch(setUserState({ self: null, token: null }));
     }
   };
 };

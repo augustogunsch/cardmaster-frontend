@@ -34,10 +34,10 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
   const handleGetDeck = (e: React.MouseEvent<HTMLElement>): void => {
     e.stopPropagation();
 
-    if (user.id === 0) {
+    if (user.self == null || user.token == null) {
       navigate('/login');
     } else {
-      userService.addDeck(user.id, deck.id, user.token).then(() => {
+      userService.addDeck(user.self.id, deck.id, user.token).then(() => {
         void dispatch(loadDecks());
         dispatch(setSuccess('Deck added to collection'));
       }).catch(e => {
@@ -70,7 +70,7 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
             <IconButtonAlternate
               aria-label="Get deck"
               onClick={handleGetDeck}
-              disabled={deck.user === user.username}
+              disabled={deck.user === user.self?.username}
               iconA={<DownloadIcon />}
               iconB={<DoneIcon/>}
             />

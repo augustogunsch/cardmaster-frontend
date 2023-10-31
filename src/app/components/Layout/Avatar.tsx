@@ -45,7 +45,7 @@ const Avatar = (): React.JSX.Element => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>): void => {
-    if (user.id === 0) {
+    if (user.self == null) {
       navigate('/login');
     }
     setAnchorElUser(event.currentTarget);
@@ -58,9 +58,9 @@ const Avatar = (): React.JSX.Element => {
   return (
     <>
       <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-        {user.id !== 0 ? <MuiAvatar {...stringAvatar(user.username)} /> : <MuiAvatar />}
+        {user.self != null ? <MuiAvatar {...stringAvatar(user.self.username)} /> : <MuiAvatar />}
       </IconButton>
-      {Boolean(user.id) && (
+      {user.self != null && (
         <Menu
           sx={{
             mt: '45px'
@@ -79,7 +79,7 @@ const Avatar = (): React.JSX.Element => {
           onClose={handleCloseUserMenu}
         >
           <MenuItem>
-            <Typography textAlign="center">{user.username}</Typography>
+            <Typography textAlign="center">{user.self.username}</Typography>
           </MenuItem>
           <Divider />
           {userMenuOptions.map(option => (

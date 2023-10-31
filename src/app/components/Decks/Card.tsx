@@ -64,11 +64,11 @@ const Card = ({ card, deckId, selected, toggleSelected, submitCallback }: IProps
       try {
         if (card !== null) {
           const newCard = { ...card, front: front.value, back: back.value };
-          const response = await cardService.updateCard(newCard, token);
+          const response = await cardService.updateCard(newCard, token ?? '');
           submitCallback(response.data);
         } else {
           const newCard = { front: front.value, back: back.value };
-          const response = await cardService.createCard(newCard, deckId, token);
+          const response = await cardService.createCard(newCard, deckId, token ?? '');
           submitCallback(response.data);
         }
       } catch (e) {

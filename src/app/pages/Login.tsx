@@ -24,7 +24,7 @@ const Login = (): React.JSX.Element => {
   const validate = useValidate([username.validate, password.validate]);
 
   useEffect(() => {
-    if (user.id !== 0) {
+    if (user.self != null) {
       navigate('/');
     }
   }, [user]);

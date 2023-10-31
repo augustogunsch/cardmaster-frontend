@@ -15,12 +15,12 @@ const Practice = (): React.JSX.Element => {
   const user = useAppSelector(store => store.user);
 
   const [deck] = useLoad(async () => {
-    const deck = await deckService.getDeck(Number(deckId), user.token);
-    if (user.username !== deck.data?.user) {
+    const deck = await deckService.getDeck(Number(deckId), user.token ?? '');
+    if (user.self?.username !== deck.data?.user) {
       return null;
     }
     return deck;
-  }, deckId !== undefined && user.id !== 0);
+  }, deckId !== undefined && user.self != null && user.token != null);
 
   return (
     <Layout>

@@ -40,11 +40,11 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
   const dispatch = useAppDispatch();
 
   const [newCardsCount] = useLoad(async () =>
-    await cardService.countCards(deck.id, token, { new: true }),
+    await cardService.countCards(deck.id, token ?? '', { new: true }),
   expanded);
 
   const [dueCardsCount] = useLoad(async () =>
-    await cardService.countCards(deck.id, token, { due: new Date().toISOString() }),
+    await cardService.countCards(deck.id, token ?? '', { due: new Date().toISOString() }),
   expanded);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>): void => {

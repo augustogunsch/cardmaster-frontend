@@ -11,7 +11,7 @@ const Home = (): React.JSX.Element => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user.id === 0) {
+    if (user.self == null) {
       navigate('/login');
     }
   }, []);
@@ -19,7 +19,7 @@ const Home = (): React.JSX.Element => {
   return (
     <Layout>
       <Typography variant="h6">
-        Welcome back, {user.username}!
+        Welcome back, {user.self?.username}!
       </Typography>
     </Layout>
   );
