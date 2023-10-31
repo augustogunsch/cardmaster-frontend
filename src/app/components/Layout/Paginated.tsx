@@ -14,7 +14,7 @@ import Search from '../../components/Search';
 
 interface IElementListProps<T> {
   elementNamePlural: string
-  elements: T[] | null
+  elements: T[] | null | undefined
   elementMapper: (element: T) => JSX.Element
   children?: JSX.Element | JSX.Element[] | boolean
 };
@@ -25,18 +25,19 @@ const ElementList = <T extends object>({
   elementMapper,
   children
 }: IElementListProps<T>): React.JSX.Element => {
-  if (elements === null) {
+  if (elements === undefined) {
     return <Stack alignItems="center"><CircularProgress /></Stack>;
   }
 
-  if ((elements.length === 0) && children === undefined) {
+  if ((elements === null || (elements.length === 0)) &&
+      (children === undefined || children === false)) {
     return <Typography>No {elementNamePlural} found.</Typography>;
   }
 
   return (
     <>
       {children}
-      {elements.map(elementMapper)}
+      {elements?.map(elementMapper)}
     </>
   );
 };
@@ -47,7 +48,7 @@ type GetElementsCallback<T> =
 export interface IPaginatedProps<T> {
   pageLength: number
   elementNamePlural?: string
-  getElements: T[] | null | GetElementsCallback<T>
+  getElements: T[] | null | undefined | GetElementsCallback<T>
   elementMapper: (element: T) => JSX.Element
   filter?: boolean | ((element: T, filter: string) => boolean)
   children?: JSX.Element | JSX.Element[] | boolean
@@ -63,13 +64,13 @@ const Paginated = <T extends object>({
 }: IPaginatedProps<T>): React.JSX.Element => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
-  const [elements, setElements] = useState<T[] | null>(null);
+  const [elements, setElements] = useState<T[] | null | undefined>(undefined);
   const searchField = useField('text');
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (typeof getElements === 'function') {
-      setElements(null);
+      setElements(undefined);
       getElements(page, pageLength, searchField.value).then(({ elements, count }) => {
         setPageCount(Math.ceil(count / pageLength));
         setElements(elements);
@@ -78,9 +79,9 @@ const Paginated = <T extends object>({
         setPageCount(0);
         void dispatch(setGenericError(e));
       });
-    } else if (getElements === null) {
+    } else if (getElements === null || getElements === undefined) {
       setPageCount(1);
-      setElements(null);
+      setElements(getElements);
     } else {
       const filteredElements = typeof filter === 'function'
         ? getElements.filter(element =>

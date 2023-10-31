@@ -19,8 +19,14 @@ const Community = (): React.JSX.Element => {
     elements: IDeck[]
     count: number
   }> => {
-    const decks = decksService.getDecks(filter, pageLength, (page - 1) * pageLength);
-    const decksCount = decksService.getDecksCount(filter);
+    const decks = decksService.getDecks({
+      q: filter,
+      limit: pageLength,
+      offset: (page - 1) * pageLength
+    });
+    const decksCount = decksService.countDecks({
+      q: filter
+    });
 
     return {
       elements: (await decks).data,

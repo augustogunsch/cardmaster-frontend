@@ -6,7 +6,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 
 export interface IProps {
-  children: React.JSX.Element | React.JSX.Element[] | undefined
+  children?: React.JSX.Element | React.JSX.Element[] | boolean
 }
 
 const Layout = ({ children }: IProps): React.JSX.Element => {

@@ -13,20 +13,12 @@ import { useAppDispatch, useAppSelector } from './hooks';
 import Message from './components/Layout/Message';
 
 import Login from './pages/Login';
+import LoggedIn from './pages/LoggedIn';
 import Logout from './pages/Logout';
 import Home from './pages/Home';
 import Decks from './pages/Decks';
 import Community from './pages/Community';
-
-const LoggedIn = ({ children }: { children: React.JSX.Element | React.JSX.Element[] }): React.JSX.Element => {
-  const user = useAppSelector(store => store.user);
-
-  if (user.id !== 0) {
-    return <>{children}</>;
-  }
-
-  return <Login />;
-};
+import Practice from './pages/Practice';
 
 const App = (): React.JSX.Element => {
   const dispatch = useAppDispatch();
@@ -48,6 +40,7 @@ const App = (): React.JSX.Element => {
         <Route path="/logout" element={<Logout />}/>
         <Route path="/decks" element={<LoggedIn><Decks /></LoggedIn>}/>
         <Route path="/community" element={<Community />}/>
+        <Route path="/practice/:deckId" element={<Practice />}/>
         <Route path="/" element={<Home />}/>
       </Routes>
       <Message />

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { IDeck } from './deckService';
+import { AuthHeader } from './util';
 
 const usersUrl = 'http://localhost:5000/users';
 const authUrl = 'http://localhost:5000/auth';
@@ -37,7 +38,7 @@ const addDeck = async (userId: number, deckId: number, token: string): Promise<I
   const response = await axios.post(
     `${usersUrl}/${userId}/decks/${deckId}`,
     {},
-    { headers: { Authorization: token } }
+    AuthHeader(token)
   );
   return response.data;
 };

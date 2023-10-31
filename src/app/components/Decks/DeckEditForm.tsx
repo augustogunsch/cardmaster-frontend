@@ -42,10 +42,10 @@ const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element =>
 
   const [cards, setCards] = useLoad(async () =>
     await cardService.getCards(deck.id, token),
-  [open], open);
+  open);
 
   useEffect(() => {
-    if (cards !== null && deck.cards_count !== cards.length) {
+    if (cards !== null && cards !== undefined && deck.cards_count !== cards.length) {
       const updatedDeck = {
         ...deck,
         cards_count: cards.length
@@ -80,14 +80,14 @@ const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element =>
   };
 
   const updateCard = (updatedCard?: CardType): void => {
-    if (cards !== null && updatedCard !== undefined) {
+    if (cards !== null && cards !== undefined && updatedCard !== undefined) {
       setCards(cards.map(card => card.id === updatedCard.id ? updatedCard : card));
       dispatch(setSuccess('Card updated succesfully'));
     }
   };
 
   const appendCard = (newCard?: CardType): void => {
-    if (cards !== null && newCard !== undefined) {
+    if (cards !== null && cards !== undefined && newCard !== undefined) {
       setCards(cards.concat(newCard));
       dispatch(setSuccess('Card created succesfully'));
     }
@@ -109,7 +109,7 @@ const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element =>
       selectedCards.forEach(id => {
         void cardService.deleteCard(id, token);
       });
-      if (cards !== null) {
+      if (cards !== null && cards !== undefined) {
         setCards(cards.filter(card => !selectedCards.includes(card.id)));
       }
       setSelectedCards([]);

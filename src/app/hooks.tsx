@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { DependencyList, Dispatch, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import type { TypedUseSelectorHook } from 'react-redux';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -81,27 +81,27 @@ export const useValidate = (validateFunctions: Array<() => boolean>): () => bool
 );
 
 export const useLoad = <T = any>(
-  fetch: () => Promise<{ data: T }>,
-  deps: DependencyList | undefined,
+  fetch: () => Promise<{ data: T } | null | undefined>,
   condition: boolean
 ): [
-    T | null,
-    Dispatch<SetStateAction<T | null>>
+    T | null | undefined,
+    Dispatch<SetStateAction<T | null | undefined>>
   ] => {
-  const [elements, setElements] = useState<T | null>(null);
+  const [elements, setElements] = useState<T | null | undefined>(undefined);
   const dispatch = useAppDispatch();
 
-  const create = (): void => {
+  useEffect(() => {
     if (condition) {
       fetch()
-        .then(response => { setElements(response.data); })
-        .catch(e => { void dispatch(setGenericError(e)); });
+        .then(response => {
+          setElements(response !== null && response !== undefined ? response.data : response);
+        }).catch(e => {
+          void dispatch(setGenericError(e));
+        });
     } else {
-      setElements(null);
+      setElements(undefined);
     }
-  };
-
-  useEffect(create, deps);
+  }, [condition]);
 
   return [elements, setElements];
 };

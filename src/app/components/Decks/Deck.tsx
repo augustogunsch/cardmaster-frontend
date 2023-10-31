@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import Grid from '@mui/material/Grid';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  IconButton,
+  Typography,
+  Stack
+} from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
@@ -39,11 +41,11 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
 
   const [newCardsCount] = useLoad(async () =>
     await cardService.countCards(deck.id, token, { new: true }),
-  [expanded], expanded);
+  expanded);
 
   const [dueCardsCount] = useLoad(async () =>
     await cardService.countCards(deck.id, token, { due: new Date().toISOString() }),
-  [expanded], expanded);
+  expanded);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>): void => {
     event.stopPropagation();
