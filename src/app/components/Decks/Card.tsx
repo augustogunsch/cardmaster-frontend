@@ -13,7 +13,8 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import { useRequiredField, useAppSelector, useAppDispatch, useValidate } from '../../hooks';
 import cardService from '../../services/cardService';
-import { setGenericError } from '../../slices/messageSlice';
+import { setGenericError, setError } from '../../slices/messageSlice';
+import { selectUser } from '../../slices/userSlice';
 import type { Card as CardType } from '../../services/cardService';
 
 export interface IProps {
@@ -30,7 +31,7 @@ const Card = ({ card, deckId, selected, toggleSelected, submitCallback }: IProps
   const back = useRequiredField('Back', 'text');
   const validate = useValidate([front.validate, back.validate]);
   const [modified, setModified] = useState(false);
-  const token = useAppSelector(store => store.user.token);
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
 
   const resetDefault = (): void => {
@@ -61,14 +62,19 @@ const Card = ({ card, deckId, selected, toggleSelected, submitCallback }: IProps
     e.preventDefault();
 
     if (validate()) {
+      if (!user.isSuccess()) {
+        dispatch(setError('You are not logged in'));
+        return;
+      }
+
       try {
         if (card !== null) {
           const newCard = { ...card, front: front.value, back: back.value };
-          const response = await cardService.updateCard(newCard, token ?? '');
+          const response = await cardService.updateCard(newCard, user.value.token);
           submitCallback(response.data);
         } else {
           const newCard = { front: front.value, back: back.value };
-          const response = await cardService.createCard(newCard, deckId, token ?? '');
+          const response = await cardService.createCard(newCard, deckId, user.value.token);
           submitCallback(response.data);
         }
       } catch (e) {

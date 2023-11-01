@@ -19,7 +19,8 @@ import { updateDeck, replaceDeck } from '../../slices/decksSlice';
 import cardService from '../../services/cardService';
 import type { IDeck } from '../../services/deckService';
 import type { Card as CardType } from '../../services/cardService';
-import { setSuccess, setGenericError } from '../../slices/messageSlice';
+import { setSuccess, setGenericError, setError } from '../../slices/messageSlice';
+import { selectUser } from '../../slices/userSlice';
 
 import DynamicForm from '../Layout/DynamicForm';
 import Paginated from '../Layout/Paginated';
@@ -34,21 +35,23 @@ export interface IProps {
 const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element => {
   const dispatch = useAppDispatch();
   const name = useRequiredField('Name', 'text');
-  const token = useAppSelector(store => store.user.token);
+  const user = useAppSelector(selectUser);
   const [deletingCards, setDeletingCards] = useState(false);
   const [shared, setShared] = useState(false);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [showNewCard, setShowNewCard] = useState(false);
 
   const [cards, setCards] = useLoad(async () =>
-    await cardService.getCards(deck.id, token ?? ''),
+    user.isSuccess()
+      ? await cardService.getCards(deck.id, user.value.token)
+      : null,
   open);
 
   useEffect(() => {
-    if (cards != null && deck.cards_count !== cards.length) {
+    if (cards.isSuccess() && deck.cards_count !== cards.value.length) {
       const updatedDeck = {
         ...deck,
-        cards_count: cards.length
+        cards_count: cards.value.length
       };
 
       dispatch(replaceDeck(updatedDeck));
@@ -80,15 +83,15 @@ const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element =>
   };
 
   const updateCard = (updatedCard?: CardType): void => {
-    if (cards != null && updatedCard !== undefined) {
-      setCards(cards.map(card => card.id === updatedCard.id ? updatedCard : card));
+    if (cards.isSuccess() && updatedCard !== undefined) {
+      setCards(cards.value.map(card => card.id === updatedCard.id ? updatedCard : card));
       dispatch(setSuccess('Card updated succesfully'));
     }
   };
 
   const appendCard = (newCard?: CardType): void => {
-    if (cards != null && newCard !== undefined) {
-      setCards(cards.concat(newCard));
+    if (cards.isSuccess() && newCard !== undefined) {
+      setCards(cards.value.concat(newCard));
       dispatch(setSuccess('Card created succesfully'));
     }
     setShowNewCard(false);
@@ -106,14 +109,18 @@ const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element =>
     setDeletingCards(true);
 
     try {
-      selectedCards.forEach(id => {
-        void cardService.deleteCard(id, token ?? '');
-      });
-      if (cards != null) {
-        setCards(cards.filter(card => !selectedCards.includes(card.id)));
+      if (user.isSuccess()) {
+        selectedCards.forEach(id => {
+          void cardService.deleteCard(id, user.value.token);
+        });
+        if (cards.isSuccess()) {
+          setCards(cards.value.filter(card => !selectedCards.includes(card.id)));
+        }
+        setSelectedCards([]);
+        dispatch(setSuccess('Cards deleted succesfully'));
+      } else {
+        dispatch(setError('You are not logged in'));
       }
-      setSelectedCards([]);
-      dispatch(setSuccess('Cards deleted succesfully'));
     } catch (e) {
       void dispatch(setGenericError(e));
     } finally {

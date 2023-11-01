@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { loadDecks } from '../slices/decksSlice';
+import { loadDecks, selectDecks } from '../slices/decksSlice';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -12,7 +12,7 @@ import Paginated from '../components/Layout/Paginated';
 
 const Decks = (): React.JSX.Element => {
   const [open, setOpen] = useState(false);
-  const decks = useAppSelector(store => store.decks.owned);
+  const decks = useAppSelector(selectDecks);
   const dispatch = useAppDispatch();
 
   useEffect(() => {

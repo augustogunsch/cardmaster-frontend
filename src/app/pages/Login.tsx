@@ -9,14 +9,14 @@ import {
   Typography
 } from '@mui/material';
 
-import { login } from '../slices/userSlice';
+import { login, selectUser } from '../slices/userSlice';
 import { useRequiredField, useValidate, useAppDispatch, useAppSelector } from '../hooks';
 import Layout from '../components/Layout/Layout';
 import { setGenericError } from '../slices/messageSlice';
 import userService from '../services/userService';
 
 const Login = (): React.JSX.Element => {
-  const user = useAppSelector(store => store.user);
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const username = useRequiredField('Username', 'text');
@@ -24,7 +24,7 @@ const Login = (): React.JSX.Element => {
   const validate = useValidate([username.validate, password.validate]);
 
   useEffect(() => {
-    if (user.self != null) {
+    if (user.isSuccess()) {
       navigate('/');
     }
   }, [user]);

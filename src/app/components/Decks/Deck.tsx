@@ -24,6 +24,7 @@ import DeckEditForm from './DeckEditForm';
 import ConfirmDialog from '../ConfirmDialog';
 import { deleteDeck, duplicateDeck } from '../../slices/decksSlice';
 import { useAppSelector, useAppDispatch, useLoad } from '../../hooks';
+import { selectUser } from '../../slices/userSlice';
 import cardService from '../../services/cardService';
 import type { IDeck } from '../../services/deckService';
 
@@ -35,16 +36,20 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
   const [openForm, setOpenForm] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const token = useAppSelector(store => store.user.token);
+  const user = useAppSelector(selectUser);
 
   const dispatch = useAppDispatch();
 
   const [newCardsCount] = useLoad(async () =>
-    await cardService.countCards(deck.id, token ?? '', { new: true }),
+    user.isSuccess()
+      ? await cardService.countCards(deck.id, user.value.token, { new: true })
+      : null,
   expanded);
 
   const [dueCardsCount] = useLoad(async () =>
-    await cardService.countCards(deck.id, token ?? '', { due: new Date().toISOString() }),
+    user.isSuccess()
+      ? await cardService.countCards(deck.id, user.value.token, { due: new Date().toISOString() })
+      : null,
   expanded);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>): void => {
@@ -111,7 +116,7 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
         </Box>
       </AccordionSummary>
       <AccordionDetails>
-        {(newCardsCount === null || dueCardsCount === null) && expanded && (
+        {(newCardsCount.isLoading() || dueCardsCount.isLoading()) && expanded && (
           <Stack
             direction="row"
             justifyContent="center"
@@ -121,13 +126,17 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
             <CircularProgress/>
           </Stack>
         )}
-        {newCardsCount !== null && dueCardsCount !== null && (
+        {!newCardsCount.isLoading() && !dueCardsCount.isLoading() && (
           <Grid container>
             <Grid item xs={6}>
               <Typography>Shared: {deck.shared ? 'Yes' : 'No'}</Typography>
               <Typography>Number of cards: {deck.cards_count}</Typography>
-              <Typography>New cards: {newCardsCount}</Typography>
-              <Typography>Due cards: {dueCardsCount}</Typography>
+              {newCardsCount.isSuccess() && (
+                <Typography>New cards: {newCardsCount.value}</Typography>
+              )}
+              {dueCardsCount.isSuccess() && (
+                <Typography>Due cards: {dueCardsCount.value}</Typography>
+              )}
             </Grid>
             <Grid
               item

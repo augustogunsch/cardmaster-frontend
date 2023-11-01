@@ -7,26 +7,20 @@ import {
 } from '@mui/material';
 
 import Layout from '../components/Layout/Layout';
-import deckService from '../services/deckService';
-import { useLoad, useAppSelector } from '../hooks';
+import { useAppSelector } from '../hooks';
+import { selectDecks } from '../slices/decksSlice';
 
 const Practice = (): React.JSX.Element => {
   const { deckId } = useParams();
-  const user = useAppSelector(store => store.user);
+  const decks = useAppSelector(selectDecks);
 
-  const [deck] = useLoad(async () => {
-    const deck = await deckService.getDeck(Number(deckId), user.token ?? '');
-    if (user.self?.username !== deck.data?.user) {
-      return null;
-    }
-    return deck;
-  }, deckId !== undefined && user.self != null && user.token != null);
+  const deck = decks.value?.find(deck => deck.id === Number(deckId));
 
   return (
     <Layout>
       <>
-        { deck !== undefined && deck !== null && <p>{deck.name}</p> }
-        { deck === undefined && (
+        { deck != null && <p>{deck.name}</p> }
+        { deck == null && (
           <Stack
             justifyContent="center"
             direction="row"
@@ -35,7 +29,6 @@ const Practice = (): React.JSX.Element => {
             <CircularProgress />
           </Stack>
         )}
-        { deck === null && <p>Error</p> }
       </>
     </Layout>
   );

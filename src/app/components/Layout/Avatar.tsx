@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 
 import { useAppSelector } from '../../hooks';
+import { selectUser } from '../../slices/userSlice';
 
 const userMenuOptions = [
   {
@@ -41,11 +42,11 @@ const stringAvatar = (name: string): object => {
 
 const Avatar = (): React.JSX.Element => {
   const navigate = useNavigate();
-  const user = useAppSelector(store => store.user);
+  const user = useAppSelector(selectUser);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>): void => {
-    if (user.self == null) {
+    if (!user.isSuccess()) {
       navigate('/login');
     }
     setAnchorElUser(event.currentTarget);
@@ -58,9 +59,9 @@ const Avatar = (): React.JSX.Element => {
   return (
     <>
       <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-        {user.self != null ? <MuiAvatar {...stringAvatar(user.self.username)} /> : <MuiAvatar />}
+        {user.isSuccess() ? <MuiAvatar {...stringAvatar(user.value.username)} /> : <MuiAvatar />}
       </IconButton>
-      {user.self != null && (
+      {user.isSuccess() && (
         <Menu
           sx={{
             mt: '45px'
@@ -79,7 +80,7 @@ const Avatar = (): React.JSX.Element => {
           onClose={handleCloseUserMenu}
         >
           <MenuItem>
-            <Typography textAlign="center">{user.self.username}</Typography>
+            <Typography textAlign="center">{user.value.username}</Typography>
           </MenuItem>
           <Divider />
           {userMenuOptions.map(option => (

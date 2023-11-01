@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppSelector } from '../hooks';
+import { selectUser } from '../slices/userSlice';
 import Login from '../pages/Login';
 
 export interface IProps {
@@ -7,13 +8,13 @@ export interface IProps {
 }
 
 const LoggedIn = ({ children }: IProps): React.JSX.Element => {
-  const user = useAppSelector(store => store.user);
+  const user = useAppSelector(selectUser);
 
-  if (user.self === undefined) {
+  if (user.isLoading()) {
     return <></>;
   }
 
-  if (user.self !== null) {
+  if (user.isSuccess()) {
     return <>{children}</>;
   }
 

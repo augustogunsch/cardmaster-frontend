@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
 import type { TypedUseSelectorHook } from 'react-redux';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { RootState, AppDispatch } from './store';
 import { setGenericError } from './slices/messageSlice';
+import { LoadWrapper } from './types';
 
 interface InputProps {
   value: string
@@ -81,29 +81,34 @@ export const useValidate = (validateFunctions: Array<() => boolean>): () => bool
 );
 
 export const useLoad = <T = any>(
-  fetch: () => Promise<{ data: T } | null | undefined>,
+  fetch: () => Promise<{ data: T } | null>,
   condition: boolean
 ): [
-    T | null | undefined,
-    Dispatch<SetStateAction<T | null | undefined>>
+    LoadWrapper<T>,
+    (newData: T) => void
   ] => {
-  const [elements, setElements] = useState<T | null | undefined>(undefined);
+  const [data, setData] = useState<LoadWrapper<T>>(LoadWrapper.loading());
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (condition) {
       fetch()
         .then(response => {
-          setElements(response !== null && response !== undefined ? response.data : response);
+          if (response !== null) {
+            setData(LoadWrapper.withData(response.data));
+          } else {
+            setData(LoadWrapper.error());
+          }
         }).catch(e => {
+          setData(LoadWrapper.error());
           void dispatch(setGenericError(e));
         });
     } else {
-      setElements(undefined);
+      setData(LoadWrapper.loading());
     }
   }, [condition]);
 
-  return [elements, setElements];
+  return [data, (newData: T) => { setData(LoadWrapper.withData(newData)); }];
 };
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
