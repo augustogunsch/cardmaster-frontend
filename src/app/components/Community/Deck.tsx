@@ -20,7 +20,6 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import userService from '../../services/userService';
 import { loadDecks } from '../../slices/decksSlice';
 import { setGenericError, setSuccess } from '../../slices/messageSlice';
-import { selectUser } from '../../slices/userSlice';
 import type { IDeck } from '../../services/deckService';
 
 interface IProps {
@@ -28,17 +27,17 @@ interface IProps {
 }
 
 const Deck = ({ deck }: IProps): React.JSX.Element => {
-  const user = useAppSelector(selectUser);
+  const user = useAppSelector(store => store.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const handleGetDeck = (e: React.MouseEvent<HTMLElement>): void => {
     e.stopPropagation();
 
-    if (!user.isSuccess()) {
+    if (user.entity === null) {
       navigate('/login');
     } else {
-      userService.addDeck(user.value.id, deck.id, user.value.token).then(() => {
+      userService.addDeck(user.entity.id, deck.id, user.entity.token).then(() => {
         void dispatch(loadDecks());
         dispatch(setSuccess('Deck added to collection'));
       }).catch(e => {
@@ -71,7 +70,7 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
             <IconButtonAlternate
               aria-label="Get deck"
               onClick={handleGetDeck}
-              disabled={deck.user === user.value?.username}
+              disabled={deck.user === user.entity?.username}
               iconA={<DownloadIcon />}
               iconB={<DoneIcon/>}
             />

@@ -8,13 +8,12 @@ import {
 
 import Layout from '../components/Layout/Layout';
 import { useAppSelector } from '../hooks';
-import { selectDecks } from '../slices/decksSlice';
 
 const Practice = (): React.JSX.Element => {
   const { deckId } = useParams();
-  const decks = useAppSelector(selectDecks);
+  const decks = useAppSelector(store => store.decks);
 
-  const deck = decks.value?.find(deck => deck.id === Number(deckId));
+  const deck = decks.entity?.find(deck => deck.id === Number(deckId));
 
   return (
     <Layout>

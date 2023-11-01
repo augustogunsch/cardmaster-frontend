@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import type { TypedUseSelectorHook } from 'react-redux';
 import { useDispatch, useSelector } from 'react-redux';
+import type { Dispatch } from 'react';
+import type { TypedUseSelectorHook } from 'react-redux';
 
-import type { RootState, AppDispatch } from './store';
 import { setGenericError } from './slices/messageSlice';
-import { LoadWrapper } from './types';
+import { LoadableState } from './types';
+import type { RootState, AppDispatch } from './store';
+import type { ILoadableState } from './types';
 
 interface InputProps {
   value: string
@@ -84,10 +86,10 @@ export const useLoad = <T = any>(
   fetch: () => Promise<{ data: T } | null>,
   condition: boolean
 ): [
-    LoadWrapper<T>,
-    (newData: T) => void
+    ILoadableState<T>,
+    Dispatch<ILoadableState<T>>
   ] => {
-  const [data, setData] = useState<LoadWrapper<T>>(LoadWrapper.loading());
+  const [data, setData] = useState<ILoadableState<T>>(LoadableState.initial());
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -95,20 +97,20 @@ export const useLoad = <T = any>(
       fetch()
         .then(response => {
           if (response !== null) {
-            setData(LoadWrapper.withData(response.data));
+            setData(LoadableState.loaded(response.data));
           } else {
-            setData(LoadWrapper.error());
+            setData(LoadableState.failed());
           }
         }).catch(e => {
-          setData(LoadWrapper.error());
+          setData(LoadableState.failed());
           void dispatch(setGenericError(e));
         });
     } else {
-      setData(LoadWrapper.loading());
+      setData(LoadableState.initial());
     }
   }, [condition]);
 
-  return [data, (newData: T) => { setData(LoadWrapper.withData(newData)); }];
+  return [data, setData];
 };
 
 export const useAppDispatch: () => AppDispatch = useDispatch;

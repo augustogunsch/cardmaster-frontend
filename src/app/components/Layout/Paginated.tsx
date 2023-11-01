@@ -10,12 +10,13 @@ import {
 
 import { useField, useAppDispatch } from '../../hooks';
 import { setGenericError } from '../../slices/messageSlice';
-import { LoadWrapper } from '../../types';
+import { LoadableState } from '../../types';
+import type { ILoadableState } from '../../types';
 import Search from '../../components/Search';
 
 interface IElementListProps<T> {
   elementNamePlural: string
-  elements: LoadWrapper<T[]>
+  elements: ILoadableState<T[]>
   elementMapper: (element: T) => JSX.Element
   children?: JSX.Element | JSX.Element[] | boolean
 };
@@ -26,17 +27,17 @@ const ElementList = <T extends object>({
   elementMapper,
   children
 }: IElementListProps<T>): React.JSX.Element => {
-  if (elements.isLoading()) {
-    return <Stack alignItems="center"><CircularProgress /></Stack>;
-  }
-
-  if (elements.isSuccess() || Boolean(children)) {
+  if (elements.entity !== null || Boolean(children)) {
     return (
       <>
         {children}
-        {elements.value?.map(elementMapper)}
+        {elements.entity?.map(elementMapper)}
       </>
     );
+  }
+
+  if (elements.status === 'initial') {
+    return <Stack alignItems="center"><CircularProgress /></Stack>;
   }
 
   return <Typography>No {elementNamePlural} found.</Typography>;
@@ -48,7 +49,7 @@ type GetElementsCallback<T> =
 export interface IPaginatedProps<T> {
   pageLength: number
   elementNamePlural?: string
-  getElements: LoadWrapper<T[]> | GetElementsCallback<T>
+  getElements: ILoadableState<T[]> | GetElementsCallback<T>
   elementMapper: (element: T) => JSX.Element
   filter?: boolean | ((element: T, filter: string) => boolean)
   children?: JSX.Element | JSX.Element[] | boolean
@@ -64,31 +65,31 @@ const Paginated = <T extends object>({
 }: IPaginatedProps<T>): React.JSX.Element => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
-  const [elements, setElements] = useState<LoadWrapper<T[]>>(LoadWrapper.loading());
+  const [elements, setElements] = useState<ILoadableState<T[]>>(LoadableState.initial());
   const searchField = useField('text');
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (typeof getElements === 'function') {
-      setElements(LoadWrapper.loading());
+      setElements(LoadableState.initial());
       getElements(page, pageLength, searchField.value).then(({ elements, count }) => {
         setPageCount(Math.ceil(count / pageLength));
-        setElements(LoadWrapper.withData(elements));
+        setElements(LoadableState.loaded(elements));
       }).catch(e => {
-        setElements(LoadWrapper.error());
+        setElements(LoadableState.failed());
         setPageCount(0);
         void dispatch(setGenericError(e));
       });
-    } else if (getElements.isSuccess()) {
+    } else if (getElements.entity !== null) {
       const filteredElements = typeof filter === 'function'
-        ? getElements.value.filter(element =>
+        ? getElements.entity.filter(element =>
           filter(element, searchField.value.toLowerCase())
         )
-        : getElements.value;
+        : getElements.entity;
       setPageCount(Math.max(Math.ceil(filteredElements.length / pageLength), 1));
       const startI = (page - 1) * pageLength;
       const endI = page * pageLength;
-      setElements(LoadWrapper.withData(filteredElements.slice(startI, endI)));
+      setElements(LoadableState.loaded(filteredElements.slice(startI, endI)));
     } else {
       setPageCount(1);
       setElements(getElements);

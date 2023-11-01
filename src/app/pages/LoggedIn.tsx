@@ -1,6 +1,5 @@
 import React from 'react';
 import { useAppSelector } from '../hooks';
-import { selectUser } from '../slices/userSlice';
 import Login from '../pages/Login';
 
 export interface IProps {
@@ -8,13 +7,13 @@ export interface IProps {
 }
 
 const LoggedIn = ({ children }: IProps): React.JSX.Element => {
-  const user = useAppSelector(selectUser);
+  const userStatus = useAppSelector(state => state.user.status);
 
-  if (user.isLoading()) {
+  if (userStatus === 'initial') {
     return <></>;
   }
 
-  if (user.isSuccess()) {
+  if (userStatus === 'loaded') {
     return <>{children}</>;
   }
 

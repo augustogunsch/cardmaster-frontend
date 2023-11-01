@@ -2,56 +2,59 @@ import { createSlice } from '@reduxjs/toolkit';
 import { setSuccess, setGenericError, setError } from './messageSlice';
 import deckService from '../services/deckService';
 import userService from '../services/userService';
+import { LoadableState } from '../types';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { IDeck } from '../services/deckService';
 import type { AppDispatch, AppGetState } from '../store';
-import { PlainLoadWrapper, LoadWrapper } from '../types';
-import type { ILoadWrapper } from '../types';
+import type { ILoadableState } from '../types';
 
-const initialState: ILoadWrapper<IDeck[]> = PlainLoadWrapper.loading();
+const initialState: ILoadableState<IDeck[]> = LoadableState.initial();
 
 export const decksSlice = createSlice({
   name: 'decks',
   initialState,
   reducers: {
-    setDecks: (_state, action: PayloadAction<ILoadWrapper<IDeck[]> | LoadWrapper<IDeck[]>>) => {
-      if (action.payload instanceof LoadWrapper) {
-        return action.payload.toObj();
-      }
-
-      return action.payload;
+    setDecks: (_state, action: PayloadAction<IDeck[]>) => {
+      return LoadableState.loaded(action.payload);
+    },
+    resetDecks: (_state) => {
+      return initialState;
     },
     appendDeck: (state, action: PayloadAction<IDeck>) => {
-      if (state.value === null) {
-        return PlainLoadWrapper.withData([action.payload]);
+      if (state.entity === null) {
+        return LoadableState.loaded([action.payload]);
       }
-      state.value.push(action.payload);
+      state.entity.push(action.payload);
     },
     replaceDeck: (state, action: PayloadAction<IDeck>) => {
-      if (state.value === null) {
+      if (state.entity === null) {
         return state;
       }
-      return PlainLoadWrapper.withData(state.value.map(deck => deck.id === action.payload.id ? action.payload : deck));
+      return LoadableState.loaded(
+        state.entity.map(deck => deck.id === action.payload.id ? action.payload : deck)
+      );
     },
     removeDeck: (state, action: PayloadAction<IDeck>) => {
-      if (state.value === null) {
+      if (state.entity === null) {
         return state;
       }
-      return PlainLoadWrapper.withData(state.value.filter(deck => deck.id !== action.payload.id));
+      return LoadableState.loaded(
+        state.entity.filter(deck => deck.id !== action.payload.id)
+      );
     }
   }
 });
 
-export const { setDecks, appendDeck, replaceDeck } = decksSlice.actions;
+export const { setDecks, resetDecks, appendDeck, replaceDeck } = decksSlice.actions;
 
 export const loadDecks = () => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
-    if (state.user.value !== null) {
-      const response = await deckService.getUserDecks(state.user.value.id, state.user.value.token);
-      dispatch(setDecks(LoadWrapper.withData(response.data)));
+    if (state.user.entity !== null) {
+      const response = await deckService.getUserDecks(state.user.entity.id, state.user.entity.token);
+      dispatch(setDecks(response.data));
     } else {
-      dispatch(setDecks(initialState));
+      dispatch(resetDecks());
     }
   };
 };
@@ -59,8 +62,8 @@ export const loadDecks = () => {
 export const createDeck = (name: string) => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
-    if (state.user.value !== null) {
-      const response = await deckService.postDeck(name, state.user.value.token);
+    if (state.user.entity !== null) {
+      const response = await deckService.postDeck(name, state.user.entity.token);
       dispatch(appendDeck(response.data));
     } else {
       dispatch(setError('You are not logged in'));
@@ -72,8 +75,8 @@ export const updateDeck = (deck: IDeck) => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
     try {
-      if (state.user.value !== null) {
-        const response = await deckService.updateDeck(deck, state.user.value.token);
+      if (state.user.entity !== null) {
+        const response = await deckService.updateDeck(deck, state.user.entity.token);
         dispatch(replaceDeck(response.data));
         dispatch(setSuccess('Deck updated successfully'));
       } else {
@@ -89,8 +92,8 @@ export const deleteDeck = (deckId: number) => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
     try {
-      if (state.user.value !== null) {
-        const response = await deckService.deleteDeck(deckId, state.user.value.token);
+      if (state.user.entity !== null) {
+        const response = await deckService.deleteDeck(deckId, state.user.entity.token);
         dispatch(decksSlice.actions.removeDeck(response.data));
         dispatch(setSuccess('Deck deleted successfully'));
       } else {
@@ -106,8 +109,8 @@ export const duplicateDeck = (deckId: number) => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
     const state = getState();
     try {
-      if (state.user.value !== null) {
-        const response = await userService.addDeck(state.user.value.id, deckId, state.user.value.token);
+      if (state.user.entity !== null) {
+        const response = await userService.addDeck(state.user.entity.id, deckId, state.user.entity.token);
         dispatch(appendDeck(response.data));
         dispatch(setSuccess('Deck cloned successfully'));
       } else {
@@ -118,8 +121,5 @@ export const duplicateDeck = (deckId: number) => {
     }
   };
 };
-
-export const selectDecks = (state: any): LoadWrapper<IDeck[]> =>
-  LoadWrapper.fromObj(state.decks as ILoadWrapper<IDeck[]>);
 
 export default decksSlice.reducer;

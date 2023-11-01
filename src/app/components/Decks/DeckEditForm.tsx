@@ -20,8 +20,7 @@ import cardService from '../../services/cardService';
 import type { IDeck } from '../../services/deckService';
 import type { Card as CardType } from '../../services/cardService';
 import { setSuccess, setGenericError, setError } from '../../slices/messageSlice';
-import { selectUser } from '../../slices/userSlice';
-
+import { LoadableState } from '../../types';
 import DynamicForm from '../Layout/DynamicForm';
 import Paginated from '../Layout/Paginated';
 import Card from './Card';
@@ -35,23 +34,23 @@ export interface IProps {
 const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element => {
   const dispatch = useAppDispatch();
   const name = useRequiredField('Name', 'text');
-  const user = useAppSelector(selectUser);
+  const user = useAppSelector(state => state.user);
   const [deletingCards, setDeletingCards] = useState(false);
   const [shared, setShared] = useState(false);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [showNewCard, setShowNewCard] = useState(false);
 
   const [cards, setCards] = useLoad(async () =>
-    user.isSuccess()
-      ? await cardService.getCards(deck.id, user.value.token)
+    user.entity !== null
+      ? await cardService.getCards(deck.id, user.entity.token)
       : null,
   open);
 
   useEffect(() => {
-    if (cards.isSuccess() && deck.cards_count !== cards.value.length) {
+    if (cards.entity !== null && deck.cards_count !== cards.entity.length) {
       const updatedDeck = {
         ...deck,
-        cards_count: cards.value.length
+        cards_count: cards.entity.length
       };
 
       dispatch(replaceDeck(updatedDeck));
@@ -83,15 +82,19 @@ const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element =>
   };
 
   const updateCard = (updatedCard?: CardType): void => {
-    if (cards.isSuccess() && updatedCard !== undefined) {
-      setCards(cards.value.map(card => card.id === updatedCard.id ? updatedCard : card));
+    if (cards.entity !== null && updatedCard !== undefined) {
+      setCards(LoadableState.loaded(
+        cards.entity.map(card => card.id === updatedCard.id ? updatedCard : card)
+      ));
       dispatch(setSuccess('Card updated succesfully'));
     }
   };
 
   const appendCard = (newCard?: CardType): void => {
-    if (cards.isSuccess() && newCard !== undefined) {
-      setCards(cards.value.concat(newCard));
+    if (cards.entity !== null && newCard !== undefined) {
+      setCards(LoadableState.loaded(
+        cards.entity.concat(newCard)
+      ));
       dispatch(setSuccess('Card created succesfully'));
     }
     setShowNewCard(false);
@@ -109,12 +112,14 @@ const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element =>
     setDeletingCards(true);
 
     try {
-      if (user.isSuccess()) {
+      if (user.entity !== null) {
         selectedCards.forEach(id => {
-          void cardService.deleteCard(id, user.value.token);
+          void cardService.deleteCard(id, user.entity?.token ?? '');
         });
-        if (cards.isSuccess()) {
-          setCards(cards.value.filter(card => !selectedCards.includes(card.id)));
+        if (cards.entity !== null) {
+          setCards(LoadableState.loaded(
+            cards.entity.filter(card => !selectedCards.includes(card.id))
+          ));
         }
         setSelectedCards([]);
         dispatch(setSuccess('Cards deleted succesfully'));

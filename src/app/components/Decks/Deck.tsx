@@ -24,7 +24,6 @@ import DeckEditForm from './DeckEditForm';
 import ConfirmDialog from '../ConfirmDialog';
 import { deleteDeck, duplicateDeck } from '../../slices/decksSlice';
 import { useAppSelector, useAppDispatch, useLoad } from '../../hooks';
-import { selectUser } from '../../slices/userSlice';
 import cardService from '../../services/cardService';
 import type { IDeck } from '../../services/deckService';
 
@@ -36,19 +35,19 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
   const [openForm, setOpenForm] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const user = useAppSelector(selectUser);
+  const user = useAppSelector(state => state.user);
 
   const dispatch = useAppDispatch();
 
   const [newCardsCount] = useLoad(async () =>
-    user.isSuccess()
-      ? await cardService.countCards(deck.id, user.value.token, { new: true })
+    user.entity !== null
+      ? await cardService.countCards(deck.id, user.entity.token, { new: true })
       : null,
   expanded);
 
   const [dueCardsCount] = useLoad(async () =>
-    user.isSuccess()
-      ? await cardService.countCards(deck.id, user.value.token, { due: new Date().toISOString() })
+    user.entity !== null
+      ? await cardService.countCards(deck.id, user.entity.token, { due: new Date().toISOString() })
       : null,
   expanded);
 
@@ -116,7 +115,7 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
         </Box>
       </AccordionSummary>
       <AccordionDetails>
-        {(newCardsCount.isLoading() || dueCardsCount.isLoading()) && expanded && (
+        {(newCardsCount.entity === null || dueCardsCount.entity === null) && expanded && (
           <Stack
             direction="row"
             justifyContent="center"
@@ -126,17 +125,13 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
             <CircularProgress/>
           </Stack>
         )}
-        {!newCardsCount.isLoading() && !dueCardsCount.isLoading() && (
+        {newCardsCount.entity !== null && dueCardsCount.entity !== null && (
           <Grid container>
             <Grid item xs={6}>
               <Typography>Shared: {deck.shared ? 'Yes' : 'No'}</Typography>
               <Typography>Number of cards: {deck.cards_count}</Typography>
-              {newCardsCount.isSuccess() && (
-                <Typography>New cards: {newCardsCount.value}</Typography>
-              )}
-              {dueCardsCount.isSuccess() && (
-                <Typography>Due cards: {dueCardsCount.value}</Typography>
-              )}
+              <Typography>New cards: {newCardsCount.entity}</Typography>
+              <Typography>Due cards: {dueCardsCount.entity}</Typography>
             </Grid>
             <Grid
               item

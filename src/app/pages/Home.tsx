@@ -2,17 +2,16 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppSelector } from '../hooks';
-import { selectUser } from '../slices/userSlice';
 import Layout from '../components/Layout/Layout';
 
 import Typography from '@mui/material/Typography';
 
 const Home = (): React.JSX.Element => {
-  const user = useAppSelector(selectUser);
+  const user = useAppSelector(state => state.user);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user.isSuccess()) {
+    if (user.status !== 'loaded') {
       navigate('/login');
     }
   }, []);
@@ -20,7 +19,7 @@ const Home = (): React.JSX.Element => {
   return (
     <Layout>
       <Typography variant="h6">
-        Welcome back, {user.value?.username}!
+        Welcome back, {user.entity?.username}!
       </Typography>
     </Layout>
   );
