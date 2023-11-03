@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Accordion,
@@ -6,11 +7,9 @@ import {
   AccordionDetails,
   Box,
   Button,
-  CircularProgress,
   Grid,
   IconButton,
-  Typography,
-  Stack
+  Typography
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -19,12 +18,11 @@ import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DoneIcon from '@mui/icons-material/Done';
 
-import IconButtonAlternate from '../IconButtonAlternate';
+import IconButtonAlternate from '../Buttons/IconButtonAlternate';
 import DeckEditForm from './DeckEditForm';
 import ConfirmDialog from '../ConfirmDialog';
 import { deleteDeck, duplicateDeck } from '../../slices/decksSlice';
-import { useAppSelector, useAppDispatch, useLoad } from '../../hooks';
-import cardService from '../../services/cardService';
+import { useAppDispatch } from '../../hooks';
 import type { IDeck } from '../../services/deckService';
 
 export interface IProps {
@@ -35,21 +33,9 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
   const [openForm, setOpenForm] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const user = useAppSelector(state => state.user);
+  const navigate = useNavigate();
 
   const dispatch = useAppDispatch();
-
-  const [newCardsCount] = useLoad(async () =>
-    user.entity !== null
-      ? await cardService.countCards(deck.id, user.entity.token, { new: true })
-      : null,
-  expanded);
-
-  const [dueCardsCount] = useLoad(async () =>
-    user.entity !== null
-      ? await cardService.countCards(deck.id, user.entity.token, { due: new Date().toISOString() })
-      : null,
-  expanded);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>): void => {
     event.stopPropagation();
@@ -68,6 +54,10 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
 
   const handleExpand = (_event: React.SyntheticEvent, isExpanded: boolean): void => {
     setExpanded(isExpanded);
+  };
+
+  const handlePlay = (): void => {
+    navigate(`/practice/${deck.id}`);
   };
 
   return (
@@ -108,6 +98,8 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
             </IconButton>
             <IconButton
               aria-label="Train deck"
+              disabled={deck.new_count === 0 && deck.due_count === 0}
+              onClick={handlePlay}
             >
               <PlayArrowOutlinedIcon />
             </IconButton>
@@ -115,45 +107,33 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
         </Box>
       </AccordionSummary>
       <AccordionDetails>
-        {(newCardsCount.entity === null || dueCardsCount.entity === null) && expanded && (
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            height="96px"
-          >
-            <CircularProgress/>
-          </Stack>
-        )}
-        {newCardsCount.entity !== null && dueCardsCount.entity !== null && (
-          <Grid container>
-            <Grid item xs={6}>
-              <Typography>Shared: {deck.shared ? 'Yes' : 'No'}</Typography>
-              <Typography>Number of cards: {deck.cards_count}</Typography>
-              <Typography>New cards: {newCardsCount.entity}</Typography>
-              <Typography>Due cards: {dueCardsCount.entity}</Typography>
-            </Grid>
-            <Grid
-              item
-              xs={6}
-            >
-              <Box
-                display="flex"
-                justifyContent="end"
-                alignItems="end"
-                height="100%"
-              >
-                <Button
-                  variant="text"
-                  color="error"
-                  onClick={() => { setOpenDeleteDialog(true); }}
-                >
-                  Delete deck
-                </Button>
-              </Box>
-            </Grid>
+        <Grid container>
+          <Grid item xs={6}>
+            <Typography>Shared: {deck.shared ? 'Yes' : 'No'}</Typography>
+            <Typography>Number of cards: {deck.all_count}</Typography>
+            <Typography>New cards: {deck.new_count}</Typography>
+            <Typography>Due cards: {deck.due_count}</Typography>
           </Grid>
-        )}
+          <Grid
+            item
+            xs={6}
+          >
+            <Box
+              display="flex"
+              justifyContent="end"
+              alignItems="end"
+              height="100%"
+            >
+              <Button
+                variant="text"
+                color="error"
+                onClick={() => { setOpenDeleteDialog(true); }}
+              >
+                Delete deck
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
       </AccordionDetails>
       <DeckEditForm
         open={openForm}

@@ -15,7 +15,7 @@ import {
   useAppSelector,
   useLoad
 } from '../../hooks';
-import { updateDeck, replaceDeck } from '../../slices/decksSlice';
+import { updateDeck, reloadDeck } from '../../slices/decksSlice';
 import cardService from '../../services/cardService';
 import type { IDeck } from '../../services/deckService';
 import type { Card as CardType } from '../../services/cardService';
@@ -47,13 +47,8 @@ const DeckEditForm = ({ open, handleClose, deck }: IProps): React.JSX.Element =>
   open);
 
   useEffect(() => {
-    if (cards.entity !== null && deck.cards_count !== cards.entity.length) {
-      const updatedDeck = {
-        ...deck,
-        cards_count: cards.entity.length
-      };
-
-      dispatch(replaceDeck(updatedDeck));
+    if (cards.entity !== null && deck.all_count !== cards.entity.length) {
+      void dispatch(reloadDeck(deck.id));
     }
   }, [cards]);
 

@@ -8,12 +8,15 @@ export interface IDeck {
   id: number
   name: string
   user: string
-  cards_count: number
   shared: boolean
+  all_count?: number
+  due_count?: number
+  new_count?: number
 }
 
 export interface IDecksResponse {
   data: IDeck[]
+  count?: number
 }
 
 export interface IDeckResponse {
@@ -24,24 +27,40 @@ export interface NumberResponse {
   data: number
 }
 
+export interface IGetUserDecksParams {
+  q?: string
+  limit?: number
+  offset?: number
+  card_count?: string
+  due?: string
+};
+
+export interface IGetDeckParams {
+  card_count?: string
+  due?: string
+};
+
 export interface IGetDecksParams {
   q?: string
   limit?: number
   offset?: number
+  total_count?: boolean
+  card_count?: string
+  due?: string
 };
 
-const getUserDecks = async (userId: number, token: string): Promise<IDecksResponse> => {
+const getUserDecks = async (userId: number, token: string, params?: IGetUserDecksParams): Promise<IDecksResponse> => {
   const response = await axios.get(
     `${usersUrl}/${userId}/decks`,
-    AuthHeader(token)
+    { params, ...AuthHeader(token) }
   );
   return response.data;
 };
 
-const getDeck = async (deckId: number, token: string): Promise<IDeckResponse> => {
+const getDeck = async (deckId: number, token: string, params?: IGetDeckParams): Promise<IDeckResponse> => {
   const response = await axios.get(
     `${decksUrl}/${deckId}`,
-    AuthHeader(token)
+    { params, ...AuthHeader(token) }
   );
   return response.data;
 };
@@ -50,14 +69,6 @@ const getDecks = async (params?: IGetDecksParams): Promise<IDecksResponse> => {
   const response = await axios.get(
     decksUrl,
     { params }
-  );
-  return response.data;
-};
-
-const countDecks = async (params?: IGetDecksParams): Promise<NumberResponse> => {
-  const response = await axios.get(
-    decksUrl,
-    { params: { ...params, count: true } }
   );
   return response.data;
 };
@@ -92,7 +103,6 @@ export default {
   getUserDecks,
   getDeck,
   getDecks,
-  countDecks,
   postDeck,
   updateDeck,
   deleteDeck

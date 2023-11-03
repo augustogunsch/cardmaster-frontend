@@ -47,11 +47,21 @@ export const decksSlice = createSlice({
 
 export const { setDecks, resetDecks, appendDeck, replaceDeck } = decksSlice.actions;
 
-export const loadDecks = () => {
+export const loadDecks = (invalidate: boolean = false) => {
   return async (dispatch: AppDispatch, getState: AppGetState) => {
+    if (invalidate) {
+      dispatch(resetDecks());
+    }
     const state = getState();
     if (state.user.entity !== null) {
-      const response = await deckService.getUserDecks(state.user.entity.id, state.user.entity.token);
+      const response = await deckService.getUserDecks(
+        state.user.entity.id,
+        state.user.entity.token,
+        {
+          due: new Date().toISOString(),
+          card_count: 'all,new,due'
+        }
+      );
       dispatch(setDecks(response.data));
     } else {
       dispatch(resetDecks());
@@ -79,6 +89,29 @@ export const updateDeck = (deck: IDeck) => {
         const response = await deckService.updateDeck(deck, state.user.entity.token);
         dispatch(replaceDeck(response.data));
         dispatch(setSuccess('Deck updated successfully'));
+      } else {
+        dispatch(setError('You are not logged in'));
+      }
+    } catch (e) {
+      void dispatch(setGenericError(e));
+    }
+  };
+};
+
+export const reloadDeck = (deckId: number) => {
+  return async (dispatch: AppDispatch, getState: AppGetState) => {
+    const state = getState();
+    try {
+      if (state.user.entity !== null) {
+        const response = await deckService.getDeck(
+          deckId,
+          state.user.entity.token,
+          {
+            due: new Date().toISOString(),
+            card_count: 'all,new,due'
+          }
+        );
+        dispatch(replaceDeck(response.data));
       } else {
         dispatch(setError('You are not logged in'));
       }

@@ -15,10 +15,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DownloadIcon from '@mui/icons-material/Download';
 import DoneIcon from '@mui/icons-material/Done';
 
-import IconButtonAlternate from '../IconButtonAlternate';
+import IconButtonAlternate from '../Buttons/IconButtonAlternate';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import userService from '../../services/userService';
-import { loadDecks } from '../../slices/decksSlice';
+import { appendDeck } from '../../slices/decksSlice';
 import { setGenericError, setSuccess } from '../../slices/messageSlice';
 import type { IDeck } from '../../services/deckService';
 
@@ -37,8 +37,8 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
     if (user.entity === null) {
       navigate('/login');
     } else {
-      userService.addDeck(user.entity.id, deck.id, user.entity.token).then(() => {
-        void dispatch(loadDecks());
+      userService.addDeck(user.entity.id, deck.id, user.entity.token).then(response => {
+        void dispatch(appendDeck(response.data));
         dispatch(setSuccess('Deck added to collection'));
       }).catch(e => {
         void dispatch(setGenericError(e));
@@ -81,7 +81,7 @@ const Deck = ({ deck }: IProps): React.JSX.Element => {
         <Grid container>
           <Grid item xs={6}>
             <Typography>Author: {deck.user}</Typography>
-            <Typography>Number of cards: {deck.cards_count}</Typography>
+            <Typography>Number of cards: {deck.all_count}</Typography>
           </Grid>
         </Grid>
       </AccordionDetails>

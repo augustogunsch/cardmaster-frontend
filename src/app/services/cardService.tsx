@@ -12,8 +12,8 @@ export interface ICard {
 export type Card = ICard & {
   id: number
   knowledge_level: number
-  last_revised: Date | null
-  revision_due: Date | null
+  last_revised: string
+  revision_due: string
 };
 
 export interface ICardsResponse {
@@ -34,6 +34,7 @@ export interface IGetCardsParams {
   offset?: number
   new?: boolean
   due?: string
+  revised?: string
 };
 
 const getCards = async (deckId: number, token: string, params?: IGetCardsParams): Promise<ICardsResponse> => {
@@ -70,6 +71,14 @@ const updateCard = async (card: Card, token: string): Promise<ICardResponse> => 
   return response.data;
 };
 
+const updateCards = async (cards: Card[], token: string): Promise<void> => {
+  await axios.put(
+    `${cardsUrl}`,
+    cards,
+    AuthHeader(token)
+  );
+};
+
 const deleteCard = async (cardId: number, token: string): Promise<ICardResponse> => {
   const response = await axios.delete(
     `${cardsUrl}/${cardId}`,
@@ -83,5 +92,6 @@ export default {
   countCards,
   createCard,
   updateCard,
+  updateCards,
   deleteCard
 };

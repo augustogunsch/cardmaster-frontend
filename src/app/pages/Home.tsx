@@ -1,26 +1,31 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 import { useAppSelector } from '../hooks';
 import Layout from '../components/Layout/Layout';
 
 import Typography from '@mui/material/Typography';
+import { CircularProgress } from '@mui/material';
 
 const Home = (): React.JSX.Element => {
   const user = useAppSelector(state => state.user);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user.status !== 'loaded') {
-      navigate('/login');
-    }
-  }, []);
 
   return (
     <Layout>
-      <Typography variant="h6">
-        Welcome back, {user.entity?.username}!
-      </Typography>
+      <>
+      {user.status === 'initial' && (
+        <CircularProgress />
+      )}
+      {user.status === 'failed' && (
+        <Typography variant="h6">
+          Welcome to CardMaster! Here you will find
+        </Typography>
+      )}
+      {user.entity !== null && (
+        <Typography variant="h6">
+          Welcome back, {user.entity.username}!
+        </Typography>
+      )}
+      </>
     </Layout>
   );
 };
