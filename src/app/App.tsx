@@ -17,8 +17,9 @@ import LoggedIn from './pages/LoggedIn';
 import Logout from './pages/Logout';
 import Home from './pages/Home';
 import Decks from './pages/Decks';
-import Community from './pages/Community';
 import Practice from './pages/Practice';
+// WIP
+// import Profile from './pages/Profile';
 
 const App = (): React.JSX.Element => {
   const dispatch = useAppDispatch();
@@ -39,8 +40,9 @@ const App = (): React.JSX.Element => {
         <Route path="/login" element={<Login />}/>
         <Route path="/logout" element={<Logout />}/>
         <Route path="/decks" element={<LoggedIn><Decks /></LoggedIn>}/>
-        <Route path="/community" element={<Community />}/>
         <Route path="/practice/:deckId" element={<Practice />}/>
+        {/* WIP */}
+        {/* <Route path="/profile" element={<Profile />}/> */}
         <Route path="/" element={<Home />}/>
       </Routes>
       <Message />

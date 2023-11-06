@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
-  Avatar as MuiAvatar,
   Divider,
   IconButton,
   Menu,
@@ -11,6 +10,7 @@ import {
 } from '@mui/material';
 
 import { useAppSelector } from '../../hooks';
+import AvatarBase from './AvatarBase';
 
 const userMenuOptions = [
   {
@@ -18,26 +18,6 @@ const userMenuOptions = [
     url: '/logout'
   }
 ];
-
-const stringToHslColor = (str: string, saturation: number, lightness: number): string => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const hue = hash % 360;
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-};
-
-const stringAvatar = (name: string): object => {
-  return {
-    sx: {
-      bgcolor: stringToHslColor(name, 30, 60)
-    },
-    children: name[0].toUpperCase(),
-    alt: name
-  };
-};
 
 const Avatar = (): React.JSX.Element => {
   const navigate = useNavigate();
@@ -55,10 +35,15 @@ const Avatar = (): React.JSX.Element => {
     setAnchorElUser(null);
   };
 
+  const handleNavigate = (url: string) => () => {
+    handleCloseUserMenu();
+    navigate(url);
+  };
+
   return (
     <>
       <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-        {user.entity !== null ? <MuiAvatar {...stringAvatar(user.entity.username)} /> : <MuiAvatar />}
+        <AvatarBase />
       </IconButton>
       {user.entity !== null && (
         <Menu
@@ -79,12 +64,25 @@ const Avatar = (): React.JSX.Element => {
           onClose={handleCloseUserMenu}
         >
           <MenuItem>
-            <Typography textAlign="center">{user.entity.username}</Typography>
+            <Typography
+              textAlign="center"
+              // WIP
+              // onClick={handleNavigate('/profile')}
+            >
+              {user.entity.username}
+            </Typography>
           </MenuItem>
           <Divider />
           {userMenuOptions.map(option => (
-            <MenuItem key={option.url} onClick={() => { navigate(option.url); }}>
-              <Typography textAlign="center">{option.name}</Typography>
+            <MenuItem
+              key={option.url}
+              onClick={handleNavigate(option.url)}
+            >
+              <Typography
+                textAlign="center"
+              >
+                {option.name}
+              </Typography>
             </MenuItem>
           ))}
         </Menu>

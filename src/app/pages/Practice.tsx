@@ -15,10 +15,12 @@ import Card from '../components/Practice/Card';
 import type { ExtendedCard } from '../components/Practice/Card';
 import End from '../components/Practice/End';
 import { loadDecks } from '../slices/decksSlice';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const Practice = (): React.JSX.Element => {
   const { deckId } = useParams();
   const [stage, setStage] = useState(0);
+  const [showClose, setShowClose] = useState(false);
   const [cards, setCards] = useState<ExtendedCard[]>([]);
   const [reviewCards, setReviewCards] = useState<ExtendedCard[]>([]);
   const [cardsToUpdate, setCardsToUpdate] = useState<ExtendedCard[]>([]);
@@ -119,21 +121,17 @@ const Practice = (): React.JSX.Element => {
     }
   };
 
-  const handleClose = async (): Promise<void> => {
-    const additionalCards = reviewCards.map(card => (
-      {
-        ...card,
-        knowledge_level: card.knowledge_level + 1
-      }
-    ));
-    await cardService.updateCards(cardsToUpdate.concat(additionalCards), user.entity?.token ?? '');
-    void dispatch(loadDecks(true));
+  const handleClose = async (saveCards: boolean): Promise<void> => {
+    if (saveCards) {
+      await cardService.updateCards(cardsToUpdate, user.entity?.token ?? '');
+      void dispatch(loadDecks(true));
+    }
     navigate('/decks');
   };
 
   return (
     <Fullscreen
-      handleClose={() => { void handleClose(); }}
+      handleClose={() => { setShowClose(true); }}
       topElement={stage === 1 && <Typography>Cards remaining: {cards.length + reviewCards.length}</Typography>}
     >
       <Stack
@@ -161,10 +159,20 @@ const Practice = (): React.JSX.Element => {
         )}
         {stage === 2 && (
           <End
-            handleClose={() => { void handleClose(); }}
+            handleClose={() => { void handleClose(true); }}
           />
         )}
       </Stack>
+      <ConfirmDialog
+        open={showClose}
+        handleConfirm={() => { void handleClose(false); }}
+        handleClose={() => { setShowClose(false); }}
+        title="Are you sure?"
+      >
+        <Typography>
+          Are you sure you want to leave? You will lose your progress from this session.
+        </Typography>
+      </ConfirmDialog>
     </Fullscreen>
   );
 };

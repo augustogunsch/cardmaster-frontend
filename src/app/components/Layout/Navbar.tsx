@@ -18,16 +18,12 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
-import Avatar from './Avatar';
+import Avatar from './AvatarNav';
 
 const pages = [
   {
-    name: 'Decks',
+    name: 'My Decks',
     url: '/decks'
-  },
-  {
-    name: 'Community',
-    url: '/community'
   }
 ];
 

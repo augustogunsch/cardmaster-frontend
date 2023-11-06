@@ -1,27 +1,51 @@
 import React from 'react';
 
 import {
-  Container,
   Link,
+  Stack,
   Typography
 } from '@mui/material';
+import { GitHub } from '@mui/icons-material';
 
 const Footer = (): React.JSX.Element => {
   return (
-    <Container
-      maxWidth={false}
+    <Stack
+      direction="row"
       sx={{
         backgroundColor: 'primary.dark',
         color: 'primary.contrastText',
-        padding: 2,
-        textAlign: 'right'
+        padding: 2
       }}
+      justifyContent="space-between"
     >
       <Typography
         variant="body2"
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1
+        }}
       >
-        made by <span> </span>
+        <GitHub />
         <Link
+          color="inherit"
+          href="https://github.com/augustogunsch/cardmaster-backend"
+          target="_blank"
+        >
+          Backend
+        </Link>
+        <Link
+          color="inherit"
+          href="https://github.com/augustogunsch/cardmaster-frontend"
+          target="_blank"
+        >
+          Frontend
+        </Link>
+      </Typography>
+      <Typography
+        variant="body2"
+      >
+        made by <Link
           color="inherit"
           href="https://augustogunsch.com"
           target="_blank"
@@ -29,7 +53,7 @@ const Footer = (): React.JSX.Element => {
           Augusto Gunsch
         </Link>
       </Typography>
-    </Container>
+    </Stack>
   );
 };
 
