@@ -32,12 +32,10 @@ export interface IGetUserDecksParams {
   limit?: number
   offset?: number
   card_count?: string
-  due?: string
 };
 
 export interface IGetDeckParams {
   card_count?: string
-  due?: string
 };
 
 export interface IGetDecksParams {
@@ -46,7 +44,6 @@ export interface IGetDecksParams {
   offset?: number
   total_count?: boolean
   card_count?: string
-  due?: string
 };
 
 const getUserDecks = async (userId: number, token: string, params?: IGetUserDecksParams): Promise<IDecksResponse> => {

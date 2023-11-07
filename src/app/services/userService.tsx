@@ -25,7 +25,8 @@ export interface IAddReponse {
 }
 
 const login = async (username: string, password: string): Promise<ILoginResponse> => {
-  const response = await axios.post(authUrl, { username, password });
+  const tzutcdelta = -(new Date()).getTimezoneOffset() * 60;
+  const response = await axios.post(authUrl, { username, password, tzutcdelta });
   return response.data;
 };
 

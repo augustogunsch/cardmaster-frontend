@@ -58,7 +58,6 @@ export const loadDecks = (invalidate: boolean = false) => {
         state.user.entity.id,
         state.user.entity.token,
         {
-          due: new Date().toISOString(),
           card_count: 'all,new,due'
         }
       );
@@ -107,7 +106,6 @@ export const reloadDeck = (deckId: number) => {
           deckId,
           state.user.entity.token,
           {
-            due: new Date().toISOString(),
             card_count: 'all,new,due'
           }
         );
